@@ -1,0 +1,385 @@
+#!/bin/bash
+
+OS_LIBS="/var/lib"
+FIRM_DIR="$OS_LIBS/linker_firmware"
+SERVICE_DIR="/usr/local/bin"
+DEV_DIR="$HOME/workspace/sc_linker"
+
+declare -a files_to_zip=(
+  "docker-compose.yml"
+  "Dockerfile"
+  "current_version"
+)
+
+declare -a files_to_copy_from_dev_dir=(
+  "docker-compose.yml"
+  "Dockerfile"
+)
+
+architecture=$(uname -m)
+if [[ $architecture =~ 64 ]]; then
+  # x86_64
+  # linker_file=linker_x64
+  raspberry=false
+elif [[ $architecture =~ armv ]]; then
+  # armv7 - raspberry
+  # linker_file=linker_arm
+  raspberry=true
+fi
+
+
+# functions
+update_service() {
+  sudo wget -O $SERVICE_DIR/_linker_service https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service;
+  download_success=$?
+  echo "downloading new linker_service"
+  if [[ $download_success -eq 0 ]]; then
+    # sucesso ao baixar
+    sudo rm -f $SERVICE_DIR/linker_service
+    sudo mv $SERVICE_DIR/_linker_service $SERVICE_DIR/linker_service
+    sudo chmod +x $SERVICE_DIR/linker_service;
+  else
+    # erro ao baixar
+    sudo rm -f $SERVICE_DIR/_linker_service
+    echo "Erro ao baixar linker_service"
+  fi
+}
+last_version() {
+  echo $(curl 'https://api.github.com/repos/denoww/linker_firmware/tags' | awk '/name/ {gsub("\"|,", "", $2); print $2;exit;}')
+}
+current_version() {
+  echo $(sudo -- bash -c "cat $FIRM_DIR/current_version")
+}
+download_firmware() {
+  sudo mkdir -p $FIRM_DIR
+
+  echo "Baixando zip"
+  sudo wget -O $FIRM_DIR/_linker.tar.xz https://raw.githubusercontent.com/denoww/linker_firmware/master/linker.tar.xz;
+  download_success=$?
+  if [[ $download_success -eq 0 ]]; then
+    sudo rm -f $FIRM_DIR/linker.tar.xz
+    sudo mv $FIRM_DIR/_linker.tar.xz $FIRM_DIR/linker.tar.xz
+
+    # apagando arquivos antigos
+    for item in "${files_to_zip[@]}"; do
+      echo "removendo $item"
+      sudo rm -f $FIRM_DIR/$item;
+    done
+
+    echo "unzipping"
+    sleep 1
+    sudo tar -C $FIRM_DIR -xf $FIRM_DIR/linker.tar.xz
+
+    # saveCurrentVersion
+  else
+    # erro ao baixar
+    sudo rm -f $FIRM_DIR/_linker.tar.xz
+    echo "Erro ao baixar _linker.tar.xz"
+  fi
+}
+start(){
+  cd $FIRM_DIR
+  sudo docker stop linker
+  sudo docker rm linker
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
+  # if [ -f "$linker_file" ]; then
+  #   sudo pm2 delete linker;
+  #   sudo pm2 start $linker_file --name linker;
+  # else
+  #   echo Erro
+  #   echo "  Não existe arquivo $linker_file"
+  #   echo "  Faça um \$ linker_service build"
+  #   echo "  Provavelmente você está tentando fazer start de um ubuntu invés de raspberry"
+  # fi
+  echo ==== Para ver os logs faça =======
+  echo "   \$ linker_service logs"
+}
+restart(){
+  # sudo pm2 restart linker;
+  start
+}
+need_update() {
+  last=$(last_version)
+  current=$(current_version)
+  if [ "$last" == "$current" ]; then
+    echo false
+  else
+    echo true
+  fi
+}
+install_dependents() {
+  sudo echo
+  read -t 5 -p "Em 5s será instalado nmap, pm2 e docker. Pular? (Y/n)? " -n 1 -r
+
+  echo    # (optional) move to a new line
+  if [[ $REPLY =~ ^[Yy]$ ]] || [ -z "$REPLY" ]; then
+
+    # nmap
+    sudo apt-get --yes install nmap;
+
+    # pm2
+    wget -qO- https://getpm2.com/install.sh | bash;
+
+    # log rotate
+    sudo pm2 install pm2-logrotate;
+    sudo pm2 set pm2-logrotate:max_size 1G;
+
+    # docker
+    wget -O - https://get.docker.com/ | bash
+
+    # docker-compose
+    sudo pip3 install docker-compose
+
+  fi
+}
+_can_release(){
+  if [ $raspberry == false ]; then
+    echo "Erro"
+    echo "  permitido releases somente a partir de um raspberry ou um hardware com arquitetura armv7 pra cima"
+    exit
+  fi
+  git_user_name=$(git config user.name)
+  git_user_email=$(git config user.email)
+  if [ -z "$git_user_name" ]; then
+    echo Erro
+    echo "  configure seu git"
+    echo "    \$ git config user.name \"Juliano Almeida\""
+    exit
+  fi
+  if [ -z "$git_user_email" ]; then
+    echo Erro
+    echo "  configure seu git"
+    echo "    \$ git config user.email \"juju@almeida.com\""
+    exit
+  fi
+}
+_clone_firmware_repo() {
+  sudo rm -rf $FIRM_DIR
+  # create_dir_firmware
+  echo "Clonning repo to ${FIRM_DIR}..."
+  git clone git@github.com:denoww/linker_firmware.git $HOME/linker_firmware
+  sudo mv $HOME/linker_firmware $OS_LIBS
+}
+_ensure_firm_repo_updated() {
+  # sudo chown $USER $OS_LIBS
+  echo "Garantindo repositorio $FIRM_DIR atualizado..."
+  if [ -d "$FIRM_DIR" ]; then
+    if ! [ -d "$FIRM_DIR/.git" ]; then
+      _clone_firmware_repo
+    else
+      echo "git pull on ${FIRM_DIR}..."
+      git -C $FIRM_DIR pull origin master
+    fi
+  else
+    _clone_firmware_repo
+  fi
+}
+_can_build() {
+  if ! [ -d "$DEV_DIR" ]; then
+    # Take action if $DIR exists. #
+    echo "Erro"
+    echo "  Não existe pasta $DEV_DIR "
+    echo "  clone o denoww/sc_linker para $DEV_DIR"
+    exit
+  fi
+}
+build(){
+  sudo echo "Iniciando..."
+  _can_build
+  _ensure_firm_repo_updated
+
+
+  # cd
+  echo "Garantindo repositorio $DEV_DIR atualizado..."
+  git -C $DEV_DIR pull origin master
+
+  sudo docker build --tag denoww/linker $DEV_DIR
+
+  # copy some files
+  for item in "${files_to_copy_from_dev_dir[@]}"; do
+    sudo rm -f $FIRM_DIR/$item
+    sudo cp $DEV_DIR/$item $FIRM_DIR/$item
+  done
+
+  # comenta o volume - .:/src/
+  # esse volume serve para podermos debugar docker em development (não precisar fazer build toda hora)
+  sed -e '/- .:\/src\// s/^#*/#/' -i $FIRM_DIR/docker-compose.yml
+
+  echo "installer finished!"
+
+  # echo "converting js to coffee"
+  # sudo find -name "*.coffee" -not -path "./app/assets/*" -exec coffee --compile {} \;
+
+  # echo "compiling app"
+  # sudo rm -f $FIRM_DIR/$linker_file
+  # if [ $raspberry == true ]; then
+  #   # Pegue a lista de nodes disponiveis aqui
+  #   # https://github.com/zeit/pkg-fetch/releases
+  #   pkg -t node12.2-linux-armv7 . --output $FIRM_DIR/$linker_file
+  # else
+  #   # Pegue a lista de nodes disponiveis aqui
+  #   # https://github.com/zeit/pkg-fetch/releases
+  #   pkg -t node12.2-linux-x64 . --output $FIRM_DIR/$linker_file
+  # fi
+
+  # echo "copying native libs"
+  # sudo rm -f $FIRM_DIR/node_sqlite3.node
+  # sudo find . -type f -name "node_sqlite3.node" -exec cp -n {} $FIRM_DIR/ \;
+
+  # echo "remove js from cofee"
+  # sudo find -name "*.js" -type f -not -path "./node_modules/*" -not -path "./node_modules/*" -not -path "./app/assets/*" -exec rm -rf {} \;
+
+
+}
+_restart_server(){
+  linker_service restart
+}
+release(){
+  sudo docker login
+  cd $FIRM_DIR
+
+  _can_release
+  _ensure_firm_repo_updated
+  echo "releasing..."
+  # incrementando versão
+  old_version=$(last_version)
+  new_version=$(echo "$old_version" | tr -dc '0-9')
+  new_version="$(($new_version + 1))"
+
+  # atualizando .current_version
+  echo Criando current_version
+  sudo -- bash -c "echo $new_version > $FIRM_DIR/current_version"
+
+  echo "removendo zip antigo..."
+  sudo rm -f $FIRM_DIR/linker.tar.xz
+  echo "zipping..."
+  # tar -C $FIRM_DIR -cvf - docker-compose.yml Dockerfile current_version | xz -5 -c - > $FIRM_DIR/linker.tar.xz
+  tar -C $FIRM_DIR -cvf - "${files_to_zip[@]}" | xz -5 -c - > $FIRM_DIR/linker.tar.xz
+
+  git -C $FIRM_DIR add .
+
+  echo "Push master"
+  git -C $FIRM_DIR commit -m "Nova Versão $new_version"
+  git -C $FIRM_DIR push origin master
+
+  echo "Apagando todas tags antigas"
+  git -C $FIRM_DIR fetch
+  git push origin --delete $(git tag -l) # remote
+  git -C $FIRM_DIR tag -l | xargs git tag -d # local
+
+  echo "Criando novas tags $new_version"
+  git -C $FIRM_DIR tag $new_version # local
+  git -C $FIRM_DIR push origin $new_version # remote
+
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
+
+  echo "Release da nova versão"
+  echo "  $new_version"
+}
+logs(){
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml logs -f
+}
+help(){
+  echo "Como Usar"
+  echo "  linker_service comando"
+  echo
+  echo "Mais Usados"
+  echo "  linker_service start"
+  echo "  linker_service logs"
+  echo "  linker_service stop"
+  echo "  linker_service restart"
+  echo "  linker_service install"
+  echo "  linker_service update"
+  echo "  linker_service update_service"
+  echo "  linker_service current_version"
+  echo "  linker_service last_version"
+  echo "  linker_service need_update"
+  echo "  linker_service build"
+  echo "  linker_service release"
+  echo "  linker_service build_and_release"
+  echo
+}
+
+case $1 in
+install)
+  update_service
+  install_dependents
+  download_firmware
+  ;;
+update)
+  need=$(need_update)
+  if $need == true; then
+    echo "Updating..."
+    download_firmware
+    restart
+    # sleep 2
+    # start
+  else
+    echo "Já está na última versão"
+  fi
+  ;;
+build_and_release)
+  _can_release
+  build
+  release
+  _restart_server
+  ;;
+build)
+  build
+  _restart_server
+  ;;
+release)
+  sudo echo "Releasing..."
+  release
+  ;;
+update_service)
+  echo "update_service"
+  # rm -f $FIRM_DIR/update_service
+  update_service
+  ;;
+start)
+  echo "Starting"
+  start
+  ;;
+stop)
+  echo "Stoping..."
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml stop;
+  ;;
+restart)
+  echo "Restarting..."
+  restart
+  ;;
+need_update)
+  # echo "Restarting..."
+  need_update
+  ;;
+current_version)
+  current_version
+  ;;
+last_version)
+  last_version
+  ;;
+help)
+  help
+  ;;
+-h)
+  help
+  ;;
+logs)
+  logs
+  ;;
+*)
+  echo "Erro"
+  echo "  Passe um argumento válido para linker_service"
+  echo
+  help
+  ;;
+esac
+
+# imprime defeitos caso não conseguir detectar arquitetura
+# if [ -z "$linker_file" ]; then
+#   echo ============================================
+#   echo problema o detectar arquitetura 64 ou armv
+#   echo "\$linker_file está vazio"
+#   echo ============================================
+# fi
