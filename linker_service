@@ -373,6 +373,7 @@ logs)
   echo "  Passe um argumento válido para linker_service"
   echo
   help
+  exit 1 # 1 é resposta de erro
   ;;
 esac
 
