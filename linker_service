@@ -77,11 +77,23 @@ download_firmware() {
     echo "Erro ao baixar _linker.tar.xz"
   fi
 }
-start(){
+stop(){
   cd $FIRM_DIR
+
+  # linker
   sudo docker stop linker
   sudo docker rm linker
+  # sudo docker-compose -f $FIRM_DIR/docker-compose.yml stop;
+}
+start(){
+  stop
+  cd $FIRM_DIR
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
+
+  # shell_server
+  sudo pm2 delete shell_server
+  sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start shell_server.js --name shell_server"
+
   # if [ -f "$linker_file" ]; then
   #   sudo pm2 delete linker;
   #   sudo pm2 start $linker_file --name linker;
@@ -113,6 +125,12 @@ install_dependents() {
 
   echo    # (optional) move to a new line
   if [[ $REPLY =~ ^[Yy]$ ]] || [ -z "$REPLY" ]; then
+
+    # dependencias do shell server (express e child_process)
+    sudo npm install -g express
+    sudo npm link express
+    sudo npm install -g child_process
+    sudo npm link child_process
 
     # nmap
     sudo apt-get --yes install nmap;
@@ -299,24 +317,33 @@ help(){
   echo "  linker_service build_and_release"
   echo
 }
-
-case $1 in
-install)
-  update_service
-  install_dependents
-  download_firmware
-  ;;
-update)
+pull_images_docker(){
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
+}
+update(){
   need=$(need_update)
   if $need == true; then
     echo "Updating..."
     download_firmware
+    pull_images_docker
     restart
     # sleep 2
     # start
   else
     echo "Já está na última versão"
   fi
+}
+install(){
+  update_service
+  install_dependents
+  download_firmware
+}
+case $1 in
+install)
+  install
+  ;;
+update)
+  update
   ;;
 build_and_release)
   _can_release
@@ -343,7 +370,7 @@ start)
   ;;
 stop)
   echo "Stoping..."
-  sudo docker-compose -f $FIRM_DIR/docker-compose.yml stop;
+  stop
   ;;
 restart)
   echo "Restarting..."
