@@ -104,7 +104,7 @@ stop(){
 
 }
 start_shell_server(){
-  sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start shell_server.js --name shell_server"
+  sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start $FIRM_DIR/shell_server.js --name shell_server"
 }
 stop_shell_server(){
   sudo pm2 delete shell_server
@@ -382,6 +382,8 @@ help(){
   echo "  linker_service build_and_start"
   echo "  linker_service build_and_release"
   echo "  linker_service release"
+  echo "  linker_service start_shell_server"
+
   echo
   echo "  Development"
   echo "    linker_service build_and_start_dev"
@@ -403,6 +405,9 @@ start_dev)
   ;;
 build_and_start_dev)
   build_and_start_dev
+  ;;
+start_shell_server)
+  start_shell_server
   ;;
 build_and_start)
   build_and_start
