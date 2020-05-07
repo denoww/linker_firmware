@@ -77,20 +77,6 @@ download_firmware() {
     echo "Erro ao baixar _linker.tar.xz"
   fi
 }
-stop(){
-  cd $FIRM_DIR
-
-  # linker
-  sudo docker stop linker
-  sudo docker rm linker
-
-  # shell_server
-  sudo pm2 delete shell_server
-
-  close_ports
-  # sudo docker-compose -f $FIRM_DIR/docker-compose.yml stop;
-
-}
 close_ports(){
   ports=(
     3002
@@ -103,31 +89,55 @@ close_ports(){
     fi
   done
 }
-start(){
-  stop
+stop(){
   cd $FIRM_DIR
 
   # linker
-  sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
+  sudo docker stop linker
+  sudo docker rm linker
 
   # shell_server
-  sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start shell_server.js --name shell_server"
+  stop_shell_server
 
-  # if [ -f "$linker_file" ]; then
-  #   sudo pm2 delete linker;
-  #   sudo pm2 start $linker_file --name linker;
-  # else
-  #   echo Erro
-  #   echo "  Não existe arquivo $linker_file"
-  #   echo "  Faça um \$ linker_service build"
-  #   echo "  Provavelmente você está tentando fazer start de um ubuntu invés de raspberry"
-  # fi
-  echo ==== Ligado shell server =======
-  echo "   http://localhost:3003"
-  echo ==== Ligado linker server =======
-  echo "   http://localhost:3002"
+  close_ports
+  # sudo docker-compose -f $FIRM_DIR/docker-compose.yml stop;
+
+}
+start_shell_server(){
+  sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start shell_server.js --name shell_server"
+}
+stop_shell_server(){
+  sudo pm2 delete shell_server
+}
+start(){
+  stop
+  start_docker_production
+  start_shell_server
+  help_start
   echo ==== Para ver os logs faça =======
   echo "   \$ linker_service logs"
+}
+start_dev(){
+  stop
+  start_docker_dev
+  start_shell_server
+  help_start
+  logs_dev
+}
+
+start_docker_production(){
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
+}
+start_docker_dev(){
+  sudo docker-compose -f $DEV_DIR/docker-compose.yml up --force-recreate -d
+}
+help_start(){
+  echo
+  echo
+  echo ==== shell server ========
+  echo "   http://localhost:3003"
+  echo ==== linker server ========
+  echo "   http://localhost:3002"
 }
 restart(){
   # sudo pm2 restart linker;
@@ -269,8 +279,6 @@ build(){
 
   # echo "remove js from cofee"
   # sudo find -name "*.js" -type f -not -path "./node_modules/*" -not -path "./node_modules/*" -not -path "./app/assets/*" -exec rm -rf {} \;
-
-
 }
 release(){
   sudo docker login
@@ -317,7 +325,11 @@ release(){
 logs(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml logs -f
 }
-
+logs_dev(){
+  echo
+  echo
+  sudo docker-compose -f $DEV_DIR/docker-compose.yml logs -f
+}
 pull_images_docker(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
 }
@@ -349,6 +361,11 @@ build_and_start(){
   build
   start
 }
+build_and_start_dev(){
+  build
+  start_dev
+}
+
 
 help(){
   echo "Como Usar"
@@ -365,9 +382,13 @@ help(){
   echo "  linker_service current_version"
   echo "  linker_service last_version"
   echo "  linker_service need_update"
-  echo "  linker_service build_and_release"
   echo "  linker_service build_and_start"
+  echo "  linker_service build_and_release"
   echo "  linker_service release"
+  echo
+  echo "  Development"
+  echo "    linker_service build_and_start_dev"
+  echo "    linker_service start_dev"
 
   echo
 }
@@ -379,6 +400,12 @@ install)
   ;;
 update)
   update
+  ;;
+start_dev)
+  start_dev
+  ;;
+build_and_start_dev)
+  build_and_start_dev
   ;;
 build_and_start)
   build_and_start
