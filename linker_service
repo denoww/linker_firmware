@@ -122,6 +122,10 @@ start(){
   #   echo "  Faça um \$ linker_service build"
   #   echo "  Provavelmente você está tentando fazer start de um ubuntu invés de raspberry"
   # fi
+  echo ==== Ligado shell server =======
+  echo "   http://localhost:3003"
+  echo ==== Ligado linker server =======
+  echo "   http://localhost:3002"
   echo ==== Para ver os logs faça =======
   echo "   \$ linker_service logs"
 }
@@ -268,9 +272,6 @@ build(){
 
 
 }
-_restart_server(){
-  linker_service restart
-}
 release(){
   sudo docker login
   cd $FIRM_DIR
@@ -316,26 +317,7 @@ release(){
 logs(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml logs -f
 }
-help(){
-  echo "Como Usar"
-  echo "  linker_service comando"
-  echo
-  echo "Mais Usados"
-  echo "  linker_service start"
-  echo "  linker_service logs"
-  echo "  linker_service stop"
-  echo "  linker_service restart"
-  echo "  linker_service install"
-  echo "  linker_service update"
-  echo "  linker_service update_service"
-  echo "  linker_service current_version"
-  echo "  linker_service last_version"
-  echo "  linker_service need_update"
-  echo "  linker_service build"
-  echo "  linker_service release"
-  echo "  linker_service build_and_release"
-  echo
-}
+
 pull_images_docker(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
 }
@@ -357,6 +339,40 @@ install(){
   install_dependents
   download_firmware
 }
+build_and_release(){
+  _can_release
+  build
+  release
+  start
+}
+build_and_start(){
+  build
+  start
+}
+
+help(){
+  echo "Como Usar"
+  echo "  linker_service comando"
+  echo
+  echo "Mais Usados"
+  echo "  linker_service start"
+  echo "  linker_service logs"
+  echo "  linker_service stop"
+  echo "  linker_service restart"
+  echo "  linker_service install"
+  echo "  linker_service update"
+  echo "  linker_service update_service"
+  echo "  linker_service current_version"
+  echo "  linker_service last_version"
+  echo "  linker_service need_update"
+  echo "  linker_service build_and_release"
+  echo "  linker_service build_and_start"
+  echo "  linker_service release"
+
+  echo
+}
+
+###################################################
 case $1 in
 install)
   install
@@ -364,15 +380,11 @@ install)
 update)
   update
   ;;
-build_and_release)
-  _can_release
-  build
-  release
-  _restart_server
+build_and_start)
+  build_and_start
   ;;
-build)
-  build
-  _restart_server
+build_and_release)
+  build_and_release
   ;;
 release)
   sudo echo "Releasing..."
