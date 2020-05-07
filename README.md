@@ -34,6 +34,10 @@ linker_service update_service
 
 linker_service need_update
 
+#### build_dev_and_start
+
+linker_service build_dev_and_start
+
 #### build_and_release
 
 linker_service build_and_release
