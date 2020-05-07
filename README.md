@@ -2,7 +2,7 @@
 
 wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install
 
-##### start help
+##### start
 
 linker_service start
 
