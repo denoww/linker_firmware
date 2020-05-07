@@ -368,10 +368,7 @@ build_and_start_dev(){
 
 
 help(){
-  echo "Como Usar"
-  echo "  linker_service comando"
-  echo
-  echo "Mais Usados"
+  echo "Tente os comandos"
   echo "  linker_service start"
   echo "  linker_service logs"
   echo "  linker_service stop"
@@ -454,8 +451,7 @@ logs)
   logs
   ;;
 *)
-  echo "Erro"
-  echo "  Passe um argumento válido para linker_service"
+  echo "Erro: Aprenda a usar linker_service"
   echo
   help
   exit 1 # 1 é resposta de erro
