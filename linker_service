@@ -83,15 +83,34 @@ stop(){
   # linker
   sudo docker stop linker
   sudo docker rm linker
+
+  # shell_server
+  sudo pm2 delete shell_server
+
+  close_ports
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml stop;
+
+}
+close_ports(){
+  ports=(
+    3002
+    3003
+  )
+  for port in "${ports[@]}"; do
+    process=$(sudo lsof -t -i:$port)
+    if ! [ -z "$process" ]; then
+      sudo kill -9 $process
+    fi
+  done
 }
 start(){
   stop
   cd $FIRM_DIR
+
+  # linker
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
 
   # shell_server
-  sudo pm2 delete shell_server
   sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start shell_server.js --name shell_server"
 
   # if [ -f "$linker_file" ]; then
