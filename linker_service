@@ -100,8 +100,6 @@ stop(){
   stop_shell_server
 
   close_ports
-  # sudo docker-compose -f $FIRM_DIR/docker-compose.yml stop;
-
 }
 start_shell_server(){
   sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start $FIRM_DIR/shell_server.js --name shell_server"
@@ -125,6 +123,12 @@ start_dev(){
   logs_dev
 }
 
+push_images_docker(){
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
+}
+pull_images_docker(){
+  sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
+}
 start_docker_production(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
 }
@@ -317,7 +321,7 @@ release(){
   git -C $FIRM_DIR tag $new_version # local
   git -C $FIRM_DIR push origin $new_version # remote
 
-  sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
+  push_images_docker
 
   echo "Release da nova versão"
   echo "  $new_version"
@@ -329,9 +333,6 @@ logs_dev(){
   echo
   echo
   logs
-}
-pull_images_docker(){
-  sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
 }
 update(){
   need=$(need_update)
@@ -388,11 +389,13 @@ help(){
   echo "  linker_service current_version"
   echo "  linker_service last_version"
   echo "  linker_service need_update"
-  echo "  linker_service build_and_start"
-  echo "  linker_service build_and_release"
   echo "  linker_service release"
   echo "  linker_service start_shell_server"
   echo "  linker_service reset_data"
+  echo "  linker_service set_timezone America/Sao_Paulo"
+  echo "  linker_service set_date"
+  echo "  linker_service build_and_start"
+  echo "  linker_service build_and_release"
 
   echo
   echo "  Development"
@@ -458,6 +461,17 @@ last_version)
   ;;
 reset_data)
   reset_data
+  ;;
+set_timezone)
+  sudo sudo timedatectl set-timezone $2
+  echo $2
+  ;;
+set_date)
+  sudo date --set $2
+  echo $2
+  ;;
+get_date)
+  sudo date
   ;;
 help)
   help
