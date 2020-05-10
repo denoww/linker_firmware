@@ -323,12 +323,12 @@ release(){
   echo "  $new_version"
 }
 logs(){
-  sudo docker-compose -f $FIRM_DIR/docker-compose.yml logs -f
+  docker logs -f linker
 }
 logs_dev(){
   echo
   echo
-  sudo docker-compose -f $DEV_DIR/docker-compose.yml logs -f
+  logs
 }
 pull_images_docker(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
@@ -365,7 +365,16 @@ build_and_start_dev(){
   build
   start_dev
 }
-
+reset_data(){
+  stop
+  echo "Limpando volumes do docker"
+  sleep 2
+  sudo docker volume rm linker_firmware_linker_data
+  sleep 2
+  sudo docker volume rm sc_linker_linker_data
+  sleep 2
+  start_dev
+}
 
 help(){
   echo "Tente os comandos"
@@ -383,6 +392,7 @@ help(){
   echo "  linker_service build_and_release"
   echo "  linker_service release"
   echo "  linker_service start_shell_server"
+  echo "  linker_service reset_data"
 
   echo
   echo "  Development"
@@ -445,6 +455,9 @@ current_version)
   ;;
 last_version)
   last_version
+  ;;
+reset_data)
+  reset_data
   ;;
 help)
   help
