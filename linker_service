@@ -398,6 +398,10 @@ help(){
   echo "  linker_service build_and_release"
 
   echo
+  echo "  Esqueceu senha"
+  echo "    linker_service reset_data"
+
+  echo
   echo "  Development"
   echo "    linker_service build_and_start_dev"
   echo "    linker_service start_dev"
