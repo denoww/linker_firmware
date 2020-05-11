@@ -9,3 +9,7 @@ linker_service start
 #### help
 
 linker_service help
+
+#### reset_data (caso não saibam a senha de /config)
+
+linker_service reset_data
