@@ -109,15 +109,15 @@ stop_shell_server(){
 }
 start(){
   stop
-  start_docker_production
+  start_container_production
   start_shell_server
   help_start
   echo ==== Para ver os logs faça =======
   echo "   \$ linker_service logs"
 }
-start_dev(){
+start_dev_docker(){
   stop
-  start_docker_dev
+  start_container_dev
   start_shell_server
   help_start
   logs_dev
@@ -129,11 +129,14 @@ push_images_docker(){
 pull_images_docker(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
 }
-start_docker_production(){
+start_container_production(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
 }
-start_docker_dev(){
+start_container_dev(){
   sudo docker-compose -f $DEV_DIR/docker-compose.yml up --force-recreate -d
+}
+reset_data_dev(){
+  sudo rm -rf $DEV_DIR/linker_data
 }
 help_start(){
   echo
@@ -362,49 +365,65 @@ build_and_start(){
   build
   start
 }
-build_and_start_dev(){
+build_dev_docker_and_start(){
   build
-  start_dev
+  start_dev_docker
 }
+reset_data_dev_docker(){
+  stop
+  echo "Limpando volumes do docker"
+  sudo docker volume rm sc_linker_linker_data
+  start_dev_docker
+}
+
 reset_data(){
   stop
   echo "Limpando volumes do docker"
-  sleep 2
   sudo docker volume rm linker_firmware_linker_data
-  sleep 2
-  sudo docker volume rm sc_linker_linker_data
-  sleep 2
-  start_dev
+  start
 }
 
 help(){
-  echo "Tente os comandos"
+  echo "Start Stop e Logs"
   echo "  linker_service start"
   echo "  linker_service logs"
   echo "  linker_service stop"
   echo "  linker_service restart"
-  echo "  linker_service install"
-  echo "  linker_service update"
-  echo "  linker_service update_service"
-  echo "  linker_service current_version"
-  echo "  linker_service last_version"
-  echo "  linker_service need_update"
-  echo "  linker_service release"
   echo "  linker_service start_shell_server"
-  echo "  linker_service reset_data"
-  echo "  linker_service set_timezone America/Sao_Paulo"
-  echo "  linker_service set_date"
+
+  echo
+  echo "Deploy"
   echo "  linker_service build_and_start"
+  echo "  linker_service release"
   echo "  linker_service build_and_release"
 
   echo
-  echo "  Esqueceu senha"
-  echo "    linker_service reset_data"
+  echo "Install e updates"
+  echo "  linker_service install"
+  echo "  linker_service update"
+  echo "  linker_service update_service"
 
   echo
-  echo "  Development"
-  echo "    linker_service build_and_start_dev"
-  echo "    linker_service start_dev"
+  echo "Esqueceu senha"
+  echo "  linker_service reset_data"
+  echo "  linker_service reset_data_dev_docker"
+  echo "  linker_service reset_data_dev"
+
+  echo
+  echo "Development Docker"
+  echo "  linker_service build_dev_docker_and_start"
+  echo "  linker_service start_dev_docker"
+
+  echo
+  echo "Setar data hora"
+  echo "  linker_service set_timezone America/Sao_Paulo"
+  echo "  linker_service set_date"
+
+  echo
+  echo "Versao"
+  echo "  linker_service current_version"
+  echo "  linker_service last_version"
+  echo "  linker_service need_update"
 
   echo
 }
@@ -417,11 +436,11 @@ install)
 update)
   update
   ;;
-start_dev)
-  start_dev
+start_dev_docker)
+  start_dev_docker
   ;;
-build_and_start_dev)
-  build_and_start_dev
+build_dev_docker_and_start)
+  build_dev_docker_and_start
   ;;
 start_shell_server)
   start_shell_server
@@ -462,6 +481,12 @@ current_version)
   ;;
 last_version)
   last_version
+  ;;
+reset_data_dev)
+  reset_data_dev
+  ;;
+reset_data_dev_docker)
+  reset_data_dev_docker
   ;;
 reset_data)
   reset_data
