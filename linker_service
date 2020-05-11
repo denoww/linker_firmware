@@ -9,6 +9,7 @@ declare -a files_to_zip=(
   "docker-compose.yml"
   "Dockerfile"
   "current_version"
+  "shell_server.js"
 )
 
 declare -a files_to_copy_from_dev_dir=(
