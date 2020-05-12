@@ -405,7 +405,7 @@ reset_data_prod(){
 }
 
 help(){
-  echo "Start Stop e Logs"
+  echo "Production Docker"
   echo "  linker_service build_prod_and_start"
   echo "  linker_service start_prod"
   echo "  linker_service restart_prod"
