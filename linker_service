@@ -366,7 +366,7 @@ update_firmware(){
     echo "Updating..."
     download_firmware
     pull_images_docker
-    restart
+    restart_prod
   else
     echo "Já está na última versão"
   fi
