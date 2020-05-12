@@ -3,7 +3,20 @@
 OS_LIBS="/var/lib"
 FIRM_DIR="$OS_LIBS/linker_firmware"
 SERVICE_DIR="/usr/local/bin"
-DEV_DIR="$HOME/workspace/sc_linker"
+dev_dir(){
+  dev_dir_file=$OS_LIBS/SC_LINKER_DEV_DIR
+  sudo touch $dev_dir_file
+  content_dev_dir_file="$(sudo -- bash -c "cat $dev_dir_file")";
+  if [ -f "$dev_dir_file" ] && [ ! -z "$content_dev_dir_file" ] && [ -d "$content_dev_dir_file" ]; then
+    resp=$content_dev_dir_file
+  else
+    resp=$(find /home -type d -regextype posix-egrep -regex ".*/(workspace/sc_linker)")
+    sudo -- bash -c "echo $resp > $dev_dir_file"
+  fi
+  echo $resp
+}
+# DEV_DIR="$HOME/workspace/sc_linker"
+
 
 declare -a files_to_zip=(
   "docker-compose.yml"
@@ -90,16 +103,15 @@ close_ports(){
     fi
   done
 }
+stop_linker(){
+  sudo docker stop linker
+  sudo docker rm linker
+}
 stop(){
   cd $FIRM_DIR
 
-  # linker
-  sudo docker stop linker
-  sudo docker rm linker
-
-  # shell_server
+  stop_linker
   stop_shell_server
-
   close_ports
 }
 start_shell_server(){
@@ -108,15 +120,28 @@ start_shell_server(){
 stop_shell_server(){
   sudo pm2 delete shell_server
 }
-start(){
+restart_shell_server(){
+  sudo pm2 restart shell_server
+}
+restart_prod(){
+  stop_linker
+  start_container_prod
+  restart_shell_server
+}
+restart_dev(){
+  stop_linker
+  start_container_dev
+  restart_shell_server
+}
+start_prod(){
   stop
-  start_container_production
+  start_container_prod
   start_shell_server
   help_start
   echo ==== Para ver os logs faça =======
   echo "   \$ linker_service logs"
 }
-start_dev_docker(){
+start_dev(){
   stop
   start_container_dev
   start_shell_server
@@ -130,14 +155,11 @@ push_images_docker(){
 pull_images_docker(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
 }
-start_container_production(){
+start_container_prod(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
 }
 start_container_dev(){
-  sudo docker-compose -f $DEV_DIR/docker-compose.yml up --force-recreate -d
-}
-reset_data_dev(){
-  sudo rm -rf $DEV_DIR/linker_data
+  sudo docker-compose -f $(dev_dir)/docker-compose.yml up --force-recreate -d
 }
 help_start(){
   echo
@@ -147,10 +169,7 @@ help_start(){
   echo ==== linker server ========
   echo "   http://localhost:3002"
 }
-restart(){
-  # sudo pm2 restart linker;
-  start
-}
+
 need_update() {
   last=$(last_version)
   current=$(current_version)
@@ -234,11 +253,11 @@ _ensure_firm_repo_updated() {
   fi
 }
 _can_build() {
-  if ! [ -d "$DEV_DIR" ]; then
+  if ! [ -d "$(dev_dir)" ]; then
     # Take action if $DIR exists. #
     echo "Erro"
-    echo "  Não existe pasta $DEV_DIR "
-    echo "  clone o denoww/sc_linker para $DEV_DIR"
+    echo "  Não existe pasta $(dev_dir) "
+    echo "  clone o denoww/sc_linker para $(dev_dir)"
     exit
   fi
 }
@@ -249,15 +268,15 @@ build(){
 
 
   # cd
-  echo "Garantindo repositorio $DEV_DIR atualizado..."
-  git -C $DEV_DIR pull origin master
+  echo "Garantindo repositorio $(dev_dir) atualizado..."
+  git -C $(dev_dir) pull origin master
 
-  sudo docker build --tag denoww/linker $DEV_DIR
+  sudo docker build --tag denoww/linker $(dev_dir)
 
   # copy some files
   for item in "${files_to_copy_from_dev_dir[@]}"; do
     sudo rm -f $FIRM_DIR/$item
-    sudo cp $DEV_DIR/$item $FIRM_DIR/$item
+    sudo cp $(dev_dir)/$item $FIRM_DIR/$item
   done
 
   # comenta o volume - .:/src/
@@ -265,7 +284,7 @@ build(){
   sed -e '/- .:\/src\// s/^#*/#/' -i $FIRM_DIR/docker-compose.yml
 
   # start em start_docker_production invés de start_docker_devepoment
-  sed -i 's/start_docker_devepoment/start_docker_production/g' $FIRM_DIR/docker-compose.yml
+  sed -i 's/start_docker_dev/start_docker_prod/g' $FIRM_DIR/docker-compose.yml
 
   echo "installer finished!"
 
@@ -341,15 +360,13 @@ logs_dev(){
   echo
   logs
 }
-update(){
+update_firmware(){
   need=$(need_update)
   if $need == true; then
     echo "Updating..."
     download_firmware
     pull_images_docker
     restart
-    # sleep 2
-    # start
   else
     echo "Já está na última versão"
   fi
@@ -359,64 +376,72 @@ install(){
   install_dependents
   download_firmware
 }
-build_and_release(){
+build_prod_and_release(){
   _can_release
   build
   release
-  start
+  start_prod
 }
-build_and_start(){
+build_prod_and_start(){
   build
-  start
+  start_prod
 }
-build_dev_docker_and_start(){
+build_dev_and_start(){
   build
-  start_dev_docker
+  start_dev
 }
-reset_data_dev_docker(){
+reset_data_dev(){
   stop
   echo "Limpando volumes do docker"
   sudo docker volume rm sc_linker_linker_data
-  start_dev_docker
+  start_dev
 }
 
-reset_data(){
+reset_data_prod(){
   stop
   echo "Limpando volumes do docker"
   sudo docker volume rm linker_firmware_linker_data
-  start
+  start_prod
 }
 
 help(){
   echo "Start Stop e Logs"
-  echo "  linker_service start"
+  echo "  linker_service build_prod_and_start"
+  echo "  linker_service start_prod"
+  echo "  linker_service restart_prod"
   echo "  linker_service logs"
   echo "  linker_service stop"
-  echo "  linker_service restart"
+
+  echo
+  echo "Development Docker"
+  echo "  linker_service build_dev_and_start"
+  echo "  linker_service start_dev"
+  echo "  linker_service restart_dev"
+  echo "  linker_service stop"
+
+  echo
+  echo "Shell server"
   echo "  linker_service start_shell_server"
+  echo "  linker_service restart_shell_server"
+  echo "  linker_service logs_shell_server"
+
 
   echo
   echo "Deploy"
-  echo "  linker_service build_and_start"
   echo "  linker_service release"
-  echo "  linker_service build_and_release"
+  echo "  linker_service build_prod_and_release"
 
   echo
-  echo "Install e updates"
-  echo "  linker_service install"
-  echo "  linker_service update"
+  echo "Firmware: Updates e Install"
+  echo "  linker_service install_firmware"
+  echo "  linker_service update_firmware"
   echo "  linker_service update_service"
 
   echo
   echo "Esqueceu senha"
-  echo "  linker_service reset_data"
-  echo "  linker_service reset_data_dev_docker"
+  echo "  linker_service reset_data_prod"
   echo "  linker_service reset_data_dev"
 
-  echo
-  echo "Development Docker"
-  echo "  linker_service build_dev_docker_and_start"
-  echo "  linker_service start_dev_docker"
 
   echo
   echo "Setar data hora"
@@ -437,23 +462,29 @@ case $1 in
 install)
   install
   ;;
-update)
-  update
+update_firmware)
+  update_firmware
   ;;
-start_dev_docker)
-  start_dev_docker
+start_dev)
+  start_dev
   ;;
-build_dev_docker_and_start)
-  build_dev_docker_and_start
+build_dev_and_start)
+  build_dev_and_start
+  ;;
+logs_shell_server)
+  sudo pm2 logs shell_server
   ;;
 start_shell_server)
   start_shell_server
   ;;
-build_and_start)
-  build_and_start
+restart_shell_server)
+  restart_shell_server
   ;;
-build_and_release)
-  build_and_release
+build_prod_and_start)
+  build_prod_and_start
+  ;;
+build_prod_and_release)
+  build_prod_and_release
   ;;
 release)
   sudo echo "Releasing..."
@@ -464,17 +495,21 @@ update_service)
   # rm -f $FIRM_DIR/update_service
   update_service
   ;;
-start)
+start_prod)
   echo "Starting"
-  start
+  start_prod
   ;;
 stop)
   echo "Stoping..."
   stop
   ;;
-restart)
+restart_prod)
   echo "Restarting..."
-  restart
+  restart_prod
+  ;;
+restart_dev)
+  echo "Restarting..."
+  restart_dev
   ;;
 need_update)
   # echo "Restarting..."
@@ -489,11 +524,8 @@ last_version)
 reset_data_dev)
   reset_data_dev
   ;;
-reset_data_dev_docker)
-  reset_data_dev_docker
-  ;;
-reset_data)
-  reset_data
+reset_data_prod)
+  reset_data_prod
   ;;
 set_timezone)
   sudo sudo timedatectl set-timezone $2

@@ -1,5 +1,6 @@
 *
 !linker.tar*
 !linker_service
+!shell_server.*
 !README.md
 !.gitignore
