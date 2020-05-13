@@ -51,7 +51,8 @@ update_service() {
     # sucesso ao baixar
     sudo rm -f $SERVICE_DIR/linker_service
     sudo mv $SERVICE_DIR/_linker_service $SERVICE_DIR/linker_service
-    sudo chmod +x $SERVICE_DIR/linker_service;
+    sudo chmod 777 $SERVICE_DIR/linker_service;
+    # sudo chmod +x $SERVICE_DIR/linker_service;
   else
     # erro ao baixar
     sudo rm -f $SERVICE_DIR/_linker_service
@@ -434,7 +435,7 @@ config_git_user(){
   echo ''
 
   echo '-- Código gerado e copiado, adicione com CTRL+V sua ssh key no seu github'
-  sh -c 'google-chrome https://github.com/settings/keys'
+  sh -c 'chromium-browser https://github.com/settings/keys'
   read -p 'Digite [ENTER] para continuar caso já tenha adicionado '
   echo ''
 
