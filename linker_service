@@ -413,6 +413,17 @@ reset_data_prod(){
   sudo docker volume rm linker_firmware_linker_data
   start_prod
 }
+config_compiler_enviroment(){
+  config_git_user
+  clone_sc_linker
+  install_dependents
+}
+clone_sc_linker(){
+  mkdir ~/workspace
+  cd workspace
+  git clone git@github.com:denoww/sc_linker.git
+  cd sc_linker
+}
 config_git_user(){
   echo '--- Configurando Git'
   echo ''
@@ -514,8 +525,10 @@ help(){
   echo "  linker_service need_update"
 
   echo
-  echo "Git"
+  echo "Compile Enviroment"
   echo "  linker_service config_git_user"
+  echo "  linker_service config_compiler_enviroment"
+
 
   echo
 }
@@ -597,6 +610,9 @@ set_timezone)
 set_date)
   sudo date --set $2
   echo $2
+  ;;
+config_compiler_enviroment)
+  config_compiler_enviroment
   ;;
 config_git_user)
   config_git_user
