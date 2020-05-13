@@ -191,6 +191,10 @@ install_dependents() {
   echo    # (optional) move to a new line
   if [[ $REPLY =~ ^[Yy]$ ]] || [ -z "$REPLY" ]; then
 
+    # node
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+
     # dependencias do shell server (express e child_process)
     sudo npm install -g express
     sudo npm link express
