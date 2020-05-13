@@ -380,7 +380,7 @@ update_firmware(){
     echo "Já está na última versão"
   fi
 }
-install(){
+install_firmware(){
   update_service
   install_dependents
   download_firmware
@@ -468,8 +468,8 @@ help(){
 
 ###################################################
 case $1 in
-install)
-  install
+install_firmware)
+  install_firmware
   ;;
 update_firmware)
   update_firmware
