@@ -30,15 +30,19 @@ declare -a files_to_copy_from_dev_dir=(
   "Dockerfile"
 )
 
+repo_docker_image=denoww/linker #:linux
+
 architecture=$(uname -m)
 if [[ $architecture =~ 64 ]]; then
   # x86_64
   # linker_file=linker_x64
-  raspberry=false
+  # raspberry=false
+  # repo_docker_image=denoww/linker:
 elif [[ $architecture =~ armv ]]; then
   # armv7 - raspberry
   # linker_file=linker_arm
-  raspberry=true
+  # raspberry=true
+  # repo_docker_image=denoww/linker
 fi
 
 
@@ -150,10 +154,15 @@ start_dev(){
 }
 
 push_images_docker(){
-  sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
+  # sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
+  # sudo docker manifest create denoww/linker:latest denoww/linker:linux
+  # sudo nano /root/.docker/config.json
+  # sudo docker manifest push denoww/linker # :latest
+  sudo docker push $repo_docker_image
 }
 pull_images_docker(){
-  sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
+  # sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
+  sudo docker pull $repo_docker_image
 }
 start_container_prod(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
@@ -211,9 +220,9 @@ install_dependents() {
   fi
 }
 _can_release(){
-  if [ $raspberry == false ]; then
+  if [ -z "$repo_docker_image" ]; then
     echo "Erro"
-    echo "  permitido releases somente a partir de um raspberry ou um hardware com arquitetura armv7 pra cima"
+    echo "  variável repo_docker_image não foi definida no início desse script (possivelmente a arquitetura do processador não foi mapeada no início desse script)"
     exit
   fi
   git_user_name=$(git config user.name)
@@ -271,7 +280,7 @@ build(){
   echo "Garantindo repositorio $(dev_dir) atualizado..."
   git -C $(dev_dir) pull origin master
 
-  sudo docker build --tag denoww/linker $(dev_dir)
+  sudo docker build --tag $repo_docker_image $(dev_dir)
 
   # copy some files
   for item in "${files_to_copy_from_dev_dir[@]}"; do
