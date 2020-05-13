@@ -412,6 +412,55 @@ reset_data_prod(){
   sudo docker volume rm linker_firmware_linker_data
   start_prod
 }
+config_git_user(){
+  echo '--- Configurando Git'
+  echo ''
+
+  sudo apt install -y xclip
+  echo ''
+
+  echo '-- Configurando Nome e email do git'
+  read -p "Digite seu nome: " git_name
+  git config --global user.name "$git_name"
+  read -p "Digite seu email: " git_email
+  git config --global user.email "$git_email"
+  echo ''
+
+  echo '-- Configurando SSH key git'
+  ssh-keygen -t rsa -b 4096 -C "$git_email"
+  eval "$(ssh-agent -s)"
+  ssh-add ~/.ssh/id_rsa
+  xclip -sel clip < ~/.ssh/id_rsa.pub
+  echo ''
+
+  echo '-- Código gerado e copiado, adicione com CTRL+V sua ssh key no seu github'
+  sh -c 'google-chrome https://github.com/settings/keys'
+  read -p 'Digite [ENTER] para continuar caso já tenha adicionado '
+  echo ''
+
+  echo '-- Configurando para não pedir senha'
+  ssh -T git@github.com
+  echo ''
+
+  echo '-- Configurando Atalhos'
+  echo ''
+  echo '- checkout => co'
+  git config --global alias.co checkout
+  echo '- branch => br'
+  git config --global alias.br branch
+  echo '- commit => ci'
+  git config --global alias.ci commit
+  echo '- status => st'
+  git config --global alias.st status
+  echo ''
+
+  echo ''
+
+  echo '--- Rodando SoftWare Update'
+  echo ''
+  sudo apt update
+  echo ''
+}
 
 help(){
   echo "Production Docker"
@@ -462,6 +511,10 @@ help(){
   echo "  linker_service current_version"
   echo "  linker_service last_version"
   echo "  linker_service need_update"
+
+  echo
+  echo "Git"
+  echo "  linker_service config_git_user"
 
   echo
 }
@@ -543,6 +596,9 @@ set_timezone)
 set_date)
   sudo date --set $2
   echo $2
+  ;;
+config_git_user)
+  config_git_user
   ;;
 get_date)
   sudo date
