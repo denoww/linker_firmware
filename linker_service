@@ -164,7 +164,7 @@ start_dev(){
   logs_dev
 }
 
-push_images_docker(){
+build_and_push_docker_images(){
   # build em amd64 e
   sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
 
@@ -357,6 +357,9 @@ release(){
   _can_release
   _ensure_firm_repo_updated
   echo "releasing..."
+
+  build_and_push_docker_images
+
   # incrementando versão
   old_version=$(last_version)
   new_version=$(echo "$old_version" | tr -dc '0-9')
@@ -386,8 +389,6 @@ release(){
   echo "Criando novas tags $new_version"
   git -C $FIRM_DIR tag $new_version # local
   git -C $FIRM_DIR push origin $new_version # remote
-
-  push_images_docker
 
   echo "Release da nova versão"
   echo "  $new_version"
