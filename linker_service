@@ -20,7 +20,6 @@ dev_dir(){
 
 declare -a files_to_zip=(
   "docker-compose.yml"
-  "Dockerfile"
   "current_version"
   "shell_server.js"
 )
@@ -241,7 +240,7 @@ _can_release(){
     exit
   fi
 }
-_clone_firmware_repo() {
+clone_linker_firmware() {
   sudo rm -rf $FIRM_DIR
   # create_dir_firmware
   echo "Clonning repo to ${FIRM_DIR}..."
@@ -253,13 +252,13 @@ _ensure_firm_repo_updated() {
   echo "Garantindo repositorio $FIRM_DIR atualizado..."
   if [ -d "$FIRM_DIR" ]; then
     if ! [ -d "$FIRM_DIR/.git" ]; then
-      _clone_firmware_repo
+      clone_linker_firmware
     else
       echo "git pull on ${FIRM_DIR}..."
       git -C $FIRM_DIR pull origin master
     fi
   else
-    _clone_firmware_repo
+    clone_linker_firmware
   fi
 }
 _can_build() {
@@ -413,11 +412,6 @@ reset_data_prod(){
   sudo docker volume rm linker_firmware_linker_data
   start_prod
 }
-config_compiler_enviroment(){
-  config_git_user
-  clone_sc_linker
-  install_dependents
-}
 clone_sc_linker(){
   mkdir ~/workspace
   cd workspace
@@ -527,7 +521,11 @@ help(){
   echo
   echo "Compile Enviroment"
   echo "  linker_service config_git_user"
-  echo "  linker_service config_compiler_enviroment"
+  echo "  linker_service clone_sc_linker"
+  echo "  linker_service clone_linker_firmware"
+  echo "  linker_service install_dependents"
+
+
 
 
   echo
@@ -611,8 +609,14 @@ set_date)
   sudo date --set $2
   echo $2
   ;;
-config_compiler_enviroment)
-  config_compiler_enviroment
+clone_sc_linker)
+  clone_sc_linker
+  ;;
+clone_linker_firmware)
+  clone_linker_firmware
+  ;;
+install_dependents)
+  install_dependents
   ;;
 config_git_user)
   config_git_user
