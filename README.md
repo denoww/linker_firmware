@@ -2,7 +2,7 @@
 
 wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install
 
-#### Consertar linker_service estragado
+#### Consertar/Instalar linker_service
 
 wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
 
