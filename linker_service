@@ -141,6 +141,7 @@ check_firmware_downloaded(){
     item_path=$FIRM_DIR/$item
     # echo "checando existencia de $item_path"
     if ! [ -f "$item_path" ]; then
+      install_shell_server
       download_firmware
     fi
   done
