@@ -19,6 +19,7 @@ dev_dir(){
 
 
 declare -a files_to_zip=(
+  "Dockerfile"
   "docker-compose.yml"
   "current_version"
   "shell_server.js"
@@ -85,6 +86,7 @@ download_firmware() {
     sudo tar -C $FIRM_DIR -xf $FIRM_DIR/linker.tar.xz
 
     # saveCurrentVersion
+    pull_images_docker
   else
     # erro ao baixar
     sudo rm -f $FIRM_DIR/_linker.tar.xz
@@ -133,8 +135,19 @@ restart_dev(){
   start_container_dev
   restart_shell_server
 }
+
+check_firmware_downloaded(){
+  for item in "${files_to_zip[@]}"; do
+    item_path=$FIRM_DIR/$item
+    # echo "checando existencia de $item_path"
+    if ! [ -f "$item_path" ]; then
+      download_firmware
+    fi
+  done
+}
 start_prod(){
   stop
+  check_firmware_downloaded
   start_container_prod
   start_shell_server
   help_start
@@ -143,6 +156,7 @@ start_prod(){
 }
 start_dev(){
   stop
+  check_firmware_downloaded
   start_container_dev
   start_shell_server
   help_start
@@ -374,7 +388,6 @@ update_firmware(){
   if $need == true; then
     echo "Updating..."
     download_firmware
-    pull_images_docker
     restart_prod
   else
     echo "Já está na última versão"
@@ -470,11 +483,11 @@ config_git_user(){
 
 help(){
   echo "Production Docker"
-  echo "  linker_service build_prod_and_start"
   echo "  linker_service start_prod"
   echo "  linker_service restart_prod"
   echo "  linker_service logs"
   echo "  linker_service stop"
+  echo "  linker_service build_prod_and_start"
 
   echo
   echo "Development Docker"
