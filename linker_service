@@ -165,11 +165,14 @@ start_dev(){
 }
 
 push_images_docker(){
+  # build em amd64 e
+  sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
   # sudo docker manifest create denoww/linker:latest denoww/linker:linux
   # sudo nano /root/.docker/config.json
   # sudo docker manifest push denoww/linker # :latest
-  sudo docker push $repo_docker_image
+  # sudo docker push $repo_docker_image
 }
 pull_images_docker(){
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
@@ -204,6 +207,17 @@ install_shell_server(){
   sudo npm link express
   sudo npm install -g child_process
   sudo npm link child_process
+}
+install_compilador_multi_arquitetura(){
+  echo "============================================================================================="
+  echo "  Instale buildx"
+  echo "    faça com sudo su"
+  echo "      https://github.com/docker/buildx/blob/master/README.md#installing"
+  echo "============================================================================================="
+  echo "  Instale o emulador QEMU (compila em outras arquiteturas: arm e amd64)"
+  echo "    Para instalar"
+  echo "      $ docker run --privileged --rm docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64"
+  echo "============================================================================================="
 }
 install_dependents() {
   sudo echo
@@ -400,13 +414,16 @@ install_firmware(){
   update_service
   install_dependents
   download_firmware
+  echo "Agora faça"
+  echo "  $ linker_service start_prod"
+  echo "    Obs: Caso os 2 servidores não ligarem reinicie o computar e tente denovo $ linker_service start_prod"
 }
-build_prod_and_release(){
-  _can_release
-  build
-  release
-  start_prod
-}
+# build_prod_and_release(){
+#   _can_release
+#   build
+#   release
+#   start_prod
+# }
 build_prod_and_start(){
   build
   start_prod
@@ -493,6 +510,11 @@ help(){
   echo "  linker_service build_prod_and_start"
 
   echo
+  echo "Deploy"
+  echo "  linker_service release"
+  # echo "  linker_service build_prod_and_release"
+
+  echo
   echo "Development Docker"
   echo "  linker_service build_dev_and_start"
   echo "  linker_service start_dev"
@@ -500,23 +522,17 @@ help(){
   echo "  linker_service stop"
 
   echo
+  echo "Firmware: Updates e Install"
+  echo "  linker_service install_firmware"
+  echo "  linker_service update_firmware"
+  echo "  linker_service update_service"
+
+  echo
   echo "Shell server"
   echo "  linker_service install_shell_server"
   echo "  linker_service start_shell_server"
   echo "  linker_service restart_shell_server"
   echo "  linker_service logs_shell_server"
-
-
-  echo
-  echo "Deploy"
-  echo "  linker_service release"
-  echo "  linker_service build_prod_and_release"
-
-  echo
-  echo "Firmware: Updates e Install"
-  echo "  linker_service install_firmware"
-  echo "  linker_service update_firmware"
-  echo "  linker_service update_service"
 
   echo
   echo "Esqueceu senha"
@@ -536,11 +552,12 @@ help(){
   echo "  linker_service need_update"
 
   echo
-  echo "Compile Enviroment"
+  echo "Config DEV Enviroment"
   echo "  linker_service config_git_user"
   echo "  linker_service clone_sc_linker"
   echo "  linker_service clone_linker_firmware"
   echo "  linker_service install_dependents"
+  echo "  linker_service install_compilador_multi_arquitetura"
 
 
 
@@ -577,9 +594,9 @@ restart_shell_server)
 build_prod_and_start)
   build_prod_and_start
   ;;
-build_prod_and_release)
-  build_prod_and_release
-  ;;
+# build_prod_and_release)
+#   build_prod_and_release
+#   ;;
 release)
   sudo echo "Releasing..."
   release
@@ -634,6 +651,9 @@ clone_sc_linker)
   ;;
 clone_linker_firmware)
   clone_linker_firmware
+  ;;
+install_compilador_multi_arquitetura)
+  install_compilador_multi_arquitetura
   ;;
 install_dependents)
   install_dependents
