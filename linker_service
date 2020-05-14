@@ -198,6 +198,12 @@ need_update() {
     echo true
   fi
 }
+install_shell_server(){
+  sudo npm install -g express
+  sudo npm link express
+  sudo npm install -g child_process
+  sudo npm link child_process
+}
 install_dependents() {
   sudo echo
   read -t 5 -p "Em 5s será instalado nmap, pm2 e docker. Pular? (Y/n)? " -n 1 -r
@@ -209,11 +215,7 @@ install_dependents() {
     curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
     sudo apt-get install -y nodejs
 
-    # dependencias do shell server (express e child_process)
-    sudo npm install -g express
-    sudo npm link express
-    sudo npm install -g child_process
-    sudo npm link child_process
+    install_shell_server
 
     # nmap
     sudo apt-get --yes install nmap;
@@ -498,6 +500,7 @@ help(){
 
   echo
   echo "Shell server"
+  echo "  linker_service install_shell_server"
   echo "  linker_service start_shell_server"
   echo "  linker_service restart_shell_server"
   echo "  linker_service logs_shell_server"
@@ -560,6 +563,9 @@ build_dev_and_start)
   ;;
 logs_shell_server)
   sudo pm2 logs shell_server
+  ;;
+install_shell_server)
+  install_shell_server
   ;;
 start_shell_server)
   start_shell_server
