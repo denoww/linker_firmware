@@ -220,26 +220,51 @@ install_compilador_multi_arquitetura(){
   echo "      $ docker run --privileged --rm docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64"
   echo "============================================================================================="
 }
-install_mariadb(){
-  sudo apt-get install -y mariadb-server
+install_database_server(){
+  # mysql
+  sudo apt-get install -y mysql-server
+  # sudo systemctl unmask mysql.service
+  # sudo systemctl status mysql
+  # sudo systemctl start mysql
 
   db_user=root
-  db_pass="xxx"
+  db_pass='xxx'
   db_name="linker"
 
   # Caso já existe uma senha e saiba ela tente
-  # sudo mysqladmin -u $db_user password $db_pass -pMINHASENHAATUAL
+  # sudo mysql -pMINHASENHA -u $db_user -e "ALTER USER '$db_user'@'localhost' IDENTIFIED WITH mysql_native_password BY '$db_pass';"
 
-  sudo mysqladmin -u $db_user password $db_pass
-  sudo mysql -u $db_user -p"$db_pass" -e "UPDATE mysql.user SET Password=PASSWORD('$db_pass') WHERE User='$db_user'"
-  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User='$db_user' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
-  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User=''"
-  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
-  sudo mysql -u $db_user -p"$db_pass" -e "FLUSH PRIVILEGES"
-  sudo mysql -u $db_user -p"$db_pass" -e "CREATE DATABASE $db_name"
+  # sudo mysqladmin -u $db_user password $db_pass
+  sudo mysql -u $db_user -e "ALTER USER '$db_user'@'localhost' IDENTIFIED WITH mysql_native_password BY '$db_pass';"
+  sudo mysql -u $db_user -e "DELETE FROM mysql.user WHERE User='$db_user' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+  sudo mysql -u $db_user -e "DELETE FROM mysql.user WHERE User=''"
+  sudo mysql -u $db_user -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
+  sudo mysql -u $db_user -e "FLUSH PRIVILEGES"
+  sudo mysql -u $db_user -e "CREATE DATABASE $db_name"
 
   # TESTE A SENHA NOVA
   # sudo mysql -u $db_user -p
+
+  # mariadb
+  # sudo apt-get install -y mariadb-server
+
+  # db_user=root
+  # db_pass="xxx"
+  # db_name="linker"
+
+  # # Caso já existe uma senha e saiba ela tente
+  # # sudo mysqladmin -u $db_user password $db_pass -pMINHASENHAATUAL
+
+  # sudo mysqladmin -u $db_user password $db_pass
+  # sudo mysql -u $db_user -p"$db_pass" -e "UPDATE mysql.user SET Password=PASSWORD('$db_pass') WHERE User='$db_user'"
+  # sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User='$db_user' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+  # sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User=''"
+  # sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
+  # sudo mysql -u $db_user -p"$db_pass" -e "FLUSH PRIVILEGES"
+  # sudo mysql -u $db_user -p"$db_pass" -e "CREATE DATABASE $db_name"
+
+  # # TESTE A SENHA NOVA
+  # # sudo mysql -u $db_user -p
 }
 
 
@@ -295,10 +320,10 @@ install_dev_dependents(){
 install_dependents() {
   ######### DANGER ###############################################
   # criar aqui no shellscript
-  # install_mariadb, install_node, install_shell_server etc
+  # install_database_server, install_node, install_shell_server etc
   ######### DANGER ###############################################
   declare -a to_install=(
-    "mariadb"
+    "database_server"
     "node"
     "shell_server"
     "nmap"
