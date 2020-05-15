@@ -167,6 +167,7 @@ start_dev(){
 build_and_push_docker_images(){
   # build em amd64 e
   sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+  echo "pushed docker images..."
 
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
   # sudo docker manifest create denoww/linker:latest denoww/linker:linux
@@ -219,36 +220,110 @@ install_compilador_multi_arquitetura(){
   echo "      $ docker run --privileged --rm docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64"
   echo "============================================================================================="
 }
-install_dependents() {
-  sudo echo
-  read -t 5 -p "Em 5s será instalado nmap, pm2 e docker. Pular? (Y/n)? " -n 1 -r
+install_mariadb(){
+  sudo apt-get install -y mariadb-server
 
-  echo    # (optional) move to a new line
-  if [[ $REPLY =~ ^[Yy]$ ]] || [ -z "$REPLY" ]; then
+  db_user=root
+  db_pass="xxx"
+  db_name="linker"
 
-    # node
-    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+  # Caso já existe uma senha e saiba ela tente
+  # sudo mysqladmin -u $db_user password $db_pass -pMINHASENHAATUAL
 
-    install_shell_server
+  sudo mysqladmin -u $db_user password $db_pass
+  sudo mysql -u $db_user -p"$db_pass" -e "UPDATE mysql.user SET Password=PASSWORD('$db_pass') WHERE User='$db_user'"
+  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User='$db_user' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User=''"
+  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
+  sudo mysql -u $db_user -p"$db_pass" -e "FLUSH PRIVILEGES"
+  sudo mysql -u $db_user -p"$db_pass" -e "CREATE DATABASE $db_name"
 
-    # nmap
-    sudo apt-get --yes install nmap;
+  # TESTE A SENHA NOVA
+  # sudo mysql -u $db_user -p
+}
 
-    # pm2
-    wget -qO- https://getpm2.com/install.sh | bash;
 
-    # log rotate
-    sudo pm2 install pm2-logrotate;
-    sudo pm2 set pm2-logrotate:max_size 1G;
+install_node(){
+  curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+}
+install_docker(){
+  # docker
+  wget -O - https://get.docker.com/ | bash
 
-    # docker
-    wget -O - https://get.docker.com/ | bash
+  # docker-compose
+  sudo pip3 install docker-compose
 
-    # docker-compose
-    sudo pip3 install docker-compose
-
+}
+install_pm2(){
+  # pm2
+  wget -qO- https://getpm2.com/install.sh | bash;
+  # log rotate
+  sudo pm2 install pm2-logrotate;
+  sudo pm2 set pm2-logrotate:max_size 1G;
+}
+install_nmap(){
+  sudo apt-get --yes install nmap;
+}
+ask_install(){
+  msg=$1
+  time=$2
+  if [ -z "$time" ]; then
+    read -p "$msg (Y/n) " -n 1 -r
+  else
+    read -t $time -p "$msg (Y/n) " -n 1 -r
   fi
+  ( [[ $REPLY =~ ^[Yy]$ ]] || [ -z "$REPLY" ] ) && install=true || install=false
+  echo $install
+}
+install_dev_npm_packages(){
+  sudo npm i nodemon -g
+  sudo npm i coffee-script -g
+  sudo npm i node-inspect -g
+}
+install_dev_dependents(){
+  ######### DANGER ###############################################
+  # criar aqui no shellscript
+  # install_dev_npm_packages etc
+  ######### DANGER ###############################################
+  declare -a to_install=(
+    "dev_npm_packages"
+  )
+  install_items $to_install
+
+}
+install_dependents() {
+  ######### DANGER ###############################################
+  # criar aqui no shellscript
+  # install_mariadb, install_node, install_shell_server etc
+  ######### DANGER ###############################################
+  declare -a to_install=(
+    "mariadb"
+    "node"
+    "shell_server"
+    "nmap"
+    "pm2"
+    "docker"
+  )
+  install_items $to_install
+}
+install_items(){
+  sudo echo
+  to_install=$1
+
+  for item in "${to_install[@]}"; do
+    resp_install="install_$item"
+    eval $resp_install=$(ask_install "Instalar $item?", 10 )
+    echo
+  done
+
+  for item in "${to_install[@]}"; do
+    install_item="install_$item"
+    resp_install="${!install_item}"
+    if [ "$resp_install" == true ]; then
+      eval $install_item
+    fi
+  done
 }
 _can_release(){
   if [ -z "$repo_docker_image" ]; then
@@ -270,6 +345,15 @@ _can_release(){
     echo "    \$ git config user.email \"juju@almeida.com\""
     exit
   fi
+}
+install_sc_linker(){
+  install_dependents
+  install_dev_dependents
+  clone_sc_linker
+  cp .env_DEVELOPMENT_sample.coffee .env_DEVELOPMENT.coffee
+  cp .env_PRODUCTION_sample.coffee .env_PRODUCTION.coffee
+  npm install
+  npm run start_dev
 }
 clone_linker_firmware() {
   sudo rm -rf $FIRM_DIR
@@ -555,9 +639,10 @@ help(){
   echo
   echo "Config DEV Enviroment"
   echo "  linker_service config_git_user"
-  echo "  linker_service clone_sc_linker"
+  echo "  linker_service install_sc_linker"
   echo "  linker_service clone_linker_firmware"
   echo "  linker_service install_dependents"
+  echo "  linker_service install_dev_dependents"
   echo "  linker_service install_compilador_multi_arquitetura"
 
 
@@ -647,14 +732,17 @@ set_date)
   sudo date --set $2
   echo $2
   ;;
-clone_sc_linker)
-  clone_sc_linker
+install_sc_linker)
+  install_sc_linker
   ;;
 clone_linker_firmware)
   clone_linker_firmware
   ;;
 install_compilador_multi_arquitetura)
   install_compilador_multi_arquitetura
+  ;;
+install_dev_dependents)
+  install_dev_dependents
   ;;
 install_dependents)
   install_dependents
