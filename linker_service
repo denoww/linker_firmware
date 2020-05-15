@@ -346,7 +346,14 @@ _can_release(){
     exit
   fi
 }
+garantir_git_configurado(){
+  git_user_email=$(git config user.email)
+  if [ -z "$git_user_email" ]; then
+    config_git_user
+  fi
+}
 install_sc_linker(){
+  garantir_git_configurado
   install_dependents
   install_dev_dependents
   clone_sc_linker
@@ -354,8 +361,12 @@ install_sc_linker(){
   cp .env_PRODUCTION_sample.coffee .env_PRODUCTION.coffee
   npm install
   npm run start_dev
+  echo
+  echo SE DESEJA FAZER RELEASES SERÁ NECESSÁRIO INSTALAR O BUILDX
+  install_compilador_multi_arquitetura
 }
-clone_linker_firmware() {
+git_clone_linker_firmware() {
+  garantir_git_configurado
   sudo rm -rf $FIRM_DIR
   # create_dir_firmware
   echo "Clonning repo to ${FIRM_DIR}..."
@@ -367,13 +378,13 @@ _ensure_firm_repo_updated() {
   echo "Garantindo repositorio $FIRM_DIR atualizado..."
   if [ -d "$FIRM_DIR" ]; then
     if ! [ -d "$FIRM_DIR/.git" ]; then
-      clone_linker_firmware
+      git_clone_linker_firmware
     else
       echo "git pull on ${FIRM_DIR}..."
       git -C $FIRM_DIR pull origin master
     fi
   else
-    clone_linker_firmware
+    git_clone_linker_firmware
   fi
 }
 _can_build() {
@@ -638,9 +649,9 @@ help(){
 
   echo
   echo "Config DEV Enviroment"
-  echo "  linker_service config_git_user"
   echo "  linker_service install_sc_linker"
-  echo "  linker_service clone_linker_firmware"
+  echo "  linker_service git_clone_linker_firmware"
+  echo "  linker_service config_git_user"
   echo "  linker_service install_dependents"
   echo "  linker_service install_dev_dependents"
   echo "  linker_service install_compilador_multi_arquitetura"
@@ -735,8 +746,8 @@ set_date)
 install_sc_linker)
   install_sc_linker
   ;;
-clone_linker_firmware)
-  clone_linker_firmware
+git_clone_linker_firmware)
+  git_clone_linker_firmware
   ;;
 install_compilador_multi_arquitetura)
   install_compilador_multi_arquitetura
