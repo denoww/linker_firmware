@@ -220,10 +220,6 @@ install_compilador_multi_arquitetura(){
   echo "      $ docker run --privileged --rm docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64"
   echo "============================================================================================="
 }
-install_database_server(){
-  install_mariadb
-  # install_mysql
-}
 install_mariadb(){
   # mariadb
   sudo apt-get install -y mariadb-server
@@ -325,10 +321,10 @@ install_dev_dependents(){
 install_dependents() {
   ######### DANGER ###############################################
   # criar aqui no shellscript
-  # install_database_server, install_node, install_shell_server etc
+  # install_mariadb, install_node, install_shell_server etc
   ######### DANGER ###############################################
   declare -a to_install=(
-    "database_server"
+    "mariadb"
     "node"
     "shell_server"
     "nmap"
