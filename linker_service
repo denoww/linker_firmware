@@ -1,8 +1,11 @@
 #!/bin/bash
 
+env_file=/etc/environment
+source $env_file
+
 # database
 DB_USER=root
-DB_PASS="xxx"
+DB_PASS=$LINKER_DB_PASSWORD
 DB_NAME="linker"
 
 OS_LIBS="/var/lib"
@@ -20,7 +23,6 @@ dev_dir(){
   fi
   echo $resp
 }
-# DEV_DIR="$HOME/workspace/sc_linker"
 
 
 declare -a files_to_zip=(
@@ -225,13 +227,15 @@ install_compilador_multi_arquitetura(){
   echo "      $ docker run --privileged --rm docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64"
   echo "============================================================================================="
 }
+
 install_mariadb(){
   # mariadb
   sudo apt-get install -y mariadb-server
 
-  # Caso já existe uma senha e saiba ela tente
-  # sudo mysqladmin -u $DB_USER password $DB_PASS -pMINHASENHAATUAL
-
+  # TESTE A SENHA NOVA
+  # sudo mysql -u $DB_USER -p
+}
+config_database(){
   sudo mysqladmin -u $DB_USER password $DB_PASS
   sudo mysql -u $DB_USER -p"$DB_PASS" -e "UPDATE mysql.user SET Password=PASSWORD('$DB_PASS') WHERE User='$DB_USER'"
   sudo mysql -u $DB_USER -p"$DB_PASS" -e "DELETE FROM mysql.user WHERE User='$DB_USER' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
@@ -239,9 +243,32 @@ install_mariadb(){
   sudo mysql -u $DB_USER -p"$DB_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
   sudo mysql -u $DB_USER -p"$DB_PASS" -e "FLUSH PRIVILEGES"
   sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
+}
+check_missing_database_config(){
+  if [ -z "$DB_PASS" ]; then
+    ask_config_to_config_database
+  fi
+}
+ask_config_to_config_database(){
+  read -p "Escolha uma senha pro banco de dados: "
+  DB_PASS=$REPLY
 
-  # TESTE A SENHA NOVA
-  # sudo mysql -u $DB_USER -p
+  if ! [ -z "$DB_PASS" ]; then
+    # coloca a senha em /etc/environment
+    sudo sed --in-place '/LINKER_DB_PASSWORD/d' $env_file
+    sudo -- bash -c "echo LINKER_DB_PASSWORD=\"$DB_PASS\" >> $env_file"
+    source $env_file
+
+    config_database
+  fi
+}
+recreate_database(){
+ sudo mysql -u $DB_USER -p"$DB_PASS" -e "DROP DATABASE $DB_NAME"
+ sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
+}
+db_console(){
+  check_missing_database_config
+  mysql -u $DB_USER -p"$DB_PASS" $DB_NAME
 }
 # install_mysql(){
 #   # mysql
@@ -313,6 +340,7 @@ install_dev_dependents(){
   # criar aqui no shellscript
   # install_dev_npm_packages etc
   ######### DANGER ###############################################
+  check_missing_database_config
   declare -a to_install=(
     "dev_npm_packages"
   )
@@ -320,6 +348,7 @@ install_dev_dependents(){
 
 }
 install_dependents() {
+  check_missing_database_config
   ######### DANGER ###############################################
   # criar aqui no shellscript
   # install_mariadb, install_node, install_shell_server etc
@@ -380,6 +409,7 @@ garantir_git_configurado(){
   fi
 }
 install_sc_linker(){
+  check_missing_database_config
   garantir_git_configurado
   install_dependents
   install_dev_dependents
@@ -534,6 +564,7 @@ update_firmware(){
   fi
 }
 install_firmware(){
+  check_missing_database_config
   update_service
   install_dependents
   download_firmware
@@ -554,13 +585,6 @@ build_prod_and_start(){
 build_dev_and_start(){
   build
   start_dev
-}
-recreate_database(){
- sudo mysql -u $DB_USER -p"$DB_PASS" -e "DROP DATABASE $DB_NAME"
- sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
-}
-db_console(){
-  mysql -u $DB_USER -p"$DB_PASS" $DB_NAME
 }
 reset_data(){
   stop
