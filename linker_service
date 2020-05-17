@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# database
+DB_USER=root
+DB_PASS="xxx"
+DB_NAME="linker"
+
 OS_LIBS="/var/lib"
 FIRM_DIR="$OS_LIBS/linker_firmware"
 SERVICE_DIR="/usr/local/bin"
@@ -224,23 +229,19 @@ install_mariadb(){
   # mariadb
   sudo apt-get install -y mariadb-server
 
-  db_user=root
-  db_pass="xxx"
-  db_name="linker"
-
   # Caso já existe uma senha e saiba ela tente
-  # sudo mysqladmin -u $db_user password $db_pass -pMINHASENHAATUAL
+  # sudo mysqladmin -u $DB_USER password $DB_PASS -pMINHASENHAATUAL
 
-  sudo mysqladmin -u $db_user password $db_pass
-  sudo mysql -u $db_user -p"$db_pass" -e "UPDATE mysql.user SET Password=PASSWORD('$db_pass') WHERE User='$db_user'"
-  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User='$db_user' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
-  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.user WHERE User=''"
-  sudo mysql -u $db_user -p"$db_pass" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
-  sudo mysql -u $db_user -p"$db_pass" -e "FLUSH PRIVILEGES"
-  sudo mysql -u $db_user -p"$db_pass" -e "CREATE DATABASE $db_name"
+  sudo mysqladmin -u $DB_USER password $DB_PASS
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "UPDATE mysql.user SET Password=PASSWORD('$DB_PASS') WHERE User='$DB_USER'"
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "DELETE FROM mysql.user WHERE User='$DB_USER' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "DELETE FROM mysql.user WHERE User=''"
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "FLUSH PRIVILEGES"
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
 
   # TESTE A SENHA NOVA
-  # sudo mysql -u $db_user -p
+  # sudo mysql -u $DB_USER -p
 }
 # install_mysql(){
 #   # mysql
@@ -249,23 +250,23 @@ install_mariadb(){
 #   # sudo systemctl status mysql
 #   # sudo systemctl start mysql
 
-#   db_user=root
-#   db_pass='xxx'
-#   db_name="linker"
+#   DB_USER=root
+#   DB_PASS='xxx'
+#   DB_NAME="linker"
 
 #   # Caso já existe uma senha e saiba ela tente
-#   # sudo mysql -pMINHASENHA -u $db_user -e "ALTER USER '$db_user'@'localhost' IDENTIFIED WITH mysql_native_password BY '$db_pass';"
+#   # sudo mysql -pMINHASENHA -u $DB_USER -e "ALTER USER '$DB_USER'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_PASS';"
 
-#   # sudo mysqladmin -u $db_user password $db_pass
-#   sudo mysql -u $db_user -e "ALTER USER '$db_user'@'localhost' IDENTIFIED WITH mysql_native_password BY '$db_pass';"
-#   sudo mysql -u $db_user -e "DELETE FROM mysql.user WHERE User='$db_user' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
-#   sudo mysql -u $db_user -e "DELETE FROM mysql.user WHERE User=''"
-#   sudo mysql -u $db_user -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
-#   sudo mysql -u $db_user -e "FLUSH PRIVILEGES"
-#   sudo mysql -u $db_user -e "CREATE DATABASE $db_name"
+#   # sudo mysqladmin -u $DB_USER password $DB_PASS
+#   sudo mysql -u $DB_USER -e "ALTER USER '$DB_USER'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_PASS';"
+#   sudo mysql -u $DB_USER -e "DELETE FROM mysql.user WHERE User='$DB_USER' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
+#   sudo mysql -u $DB_USER -e "DELETE FROM mysql.user WHERE User=''"
+#   sudo mysql -u $DB_USER -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
+#   sudo mysql -u $DB_USER -e "FLUSH PRIVILEGES"
+#   sudo mysql -u $DB_USER -e "CREATE DATABASE $DB_NAME"
 
 #   # TESTE A SENHA NOVA
-#   # sudo mysql -u $db_user -p
+#   # sudo mysql -u $DB_USER -p
 # }
 
 
@@ -554,18 +555,25 @@ build_dev_and_start(){
   build
   start_dev
 }
-reset_data_dev(){
+recreate_database(){
+ sudo mysql -u $DB_USER -p"$DB_PASS" -e "DROP DATABASE $DB_NAME"
+ sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
+}
+
+reset_data(){
   stop
   echo "Limpando volumes do docker"
   sudo docker volume rm sc_linker_linker_data
-  start_dev
-}
-
-reset_data_prod(){
-  stop
-  echo "Limpando volumes do docker"
   sudo docker volume rm linker_firmware_linker_data
+  recreate_database
+}
+reset_data_prod(){
+  reset_data
   start_prod
+}
+reset_data_dev(){
+  reset_data
+  start_dev
 }
 clone_sc_linker(){
   mkdir ~/workspace
@@ -661,7 +669,6 @@ help(){
   echo "  linker_service reset_data_prod"
   echo "  linker_service reset_data_dev"
 
-
   echo
   echo "Setar data hora"
   echo "  linker_service set_timezone America/Sao_Paulo"
@@ -755,11 +762,11 @@ current_version)
 last_version)
   last_version
   ;;
-reset_data_dev)
-  reset_data_dev
-  ;;
 reset_data_prod)
   reset_data_prod
+  ;;
+reset_data_dev)
+  reset_data_dev
   ;;
 set_timezone)
   sudo sudo timedatectl set-timezone $2
