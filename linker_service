@@ -559,7 +559,9 @@ recreate_database(){
  sudo mysql -u $DB_USER -p"$DB_PASS" -e "DROP DATABASE $DB_NAME"
  sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
 }
-
+db_console(){
+  mysql -u $DB_USER -p"$DB_PASS" $DB_NAME
+}
 reset_data(){
   stop
   echo "Limpando volumes do docker"
@@ -688,6 +690,7 @@ help(){
   echo "  linker_service install_dependents"
   echo "  linker_service install_dev_dependents"
   echo "  linker_service install_compilador_multi_arquitetura"
+  echo "  linker_service db_console"
 
 
 
@@ -727,6 +730,9 @@ build_prod_and_start)
 # build_prod_and_release)
 #   build_prod_and_release
 #   ;;
+db_console)
+  db_console
+  ;;
 release)
   sudo echo "Releasing..."
   release
