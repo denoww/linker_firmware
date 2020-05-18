@@ -231,6 +231,7 @@ install_compilador_multi_arquitetura(){
 install_mariadb(){
   # mariadb
   sudo apt-get install -y mariadb-server
+  config_database
 
   # TESTE A SENHA NOVA
   # sudo mysql -u $DB_USER -p
@@ -258,8 +259,6 @@ ask_config_to_config_database(){
     sudo sed --in-place '/LINKER_DB_PASSWORD/d' $env_file
     sudo -- bash -c "echo LINKER_DB_PASSWORD=\"$DB_PASS\" >> $env_file"
     source $env_file
-
-    config_database
   fi
 }
 recreate_database(){
