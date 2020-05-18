@@ -172,8 +172,15 @@ start_dev(){
 }
 
 build_and_push_docker_images(){
+
+  # criar perfil
+  docker buildx create --use --name build --node build --driver-opt network=host
+  # sudo docker buildx create --use --name build --node build --driver-opt network=host
+
+  # build e push
   # build em amd64 e
-  sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+  docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+  # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
   echo "pushed docker images..."
 
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
