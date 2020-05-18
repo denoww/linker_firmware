@@ -173,14 +173,17 @@ start_dev(){
 
 build_and_push_docker_images(){
 
+  # login
+  sudo docker login
+
   # criar perfil
-  docker buildx create --use --name build --node build --driver-opt network=host
+  sudo docker buildx create --use --name build --node build --driver-opt network=host
   # sudo docker buildx create --use --name build --node build --driver-opt network=host
 
-  # build e push
-  # build em amd64 e
-  docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+  # build e push em amd64 e arm
+  sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
   # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+
   echo "pushed docker images..."
 
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
@@ -511,7 +514,6 @@ build(){
   # sudo find -name "*.js" -type f -not -path "./node_modules/*" -not -path "./node_modules/*" -not -path "./app/assets/*" -exec rm -rf {} \;
 }
 release(){
-  sudo docker login
   cd $FIRM_DIR
 
   _can_release
