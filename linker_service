@@ -322,9 +322,11 @@ ask_install(){
   msg=$1
   time=$2
   if [ -z "$time" ]; then
-    read -p "$msg (Y/n) " -n 1 -r
+    read -p "$msg (Y/n) " -r
+    # read -p "$msg (Y/n) " -n 1 -r
   else
-    read -t $time -p "$msg (Y/n) " -n 1 -r
+    read -t $time -p "$msg (Y/n) " -r
+    # read -t $time -p "$msg (Y/n) " -n 1 -r
   fi
   ( [[ $REPLY =~ ^[Yy]$ ]] || [ -z "$REPLY" ] ) && install=true || install=false
   echo $install
