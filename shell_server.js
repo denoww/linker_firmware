@@ -27,7 +27,7 @@ app.get('/', function (req, res) {
 
 // /linker_service
 app.get('/linker_service', function (req, res) {
-  backgroundCommands = ['install_shell_server', 'install_firmware', 'update_firmware', 'restart_prod', 'restart_dev', 'install_dev_dependents', 'install_dependents']
+  backgroundCommands = ['install_shell_server', 'install_firmware', 'reset_data_prod', 'reset_data_dev', 'update_firmware', 'restart_prod', 'restart_dev', 'install_dev_dependents', 'install_dependents']
 
   params = getParams(req);
   cmd = '';
