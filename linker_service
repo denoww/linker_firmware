@@ -205,10 +205,10 @@ pull_images_docker(){
   # quando baixamos uma imagem nova, antiga fica sem tag... o filtro dangling=true nos traz imagens sem tag
   # dangling é imagem sem tag
   old_images=$(docker images -q denoww/linker --filter "dangling=true" | uniq)
-
-  # if ! [ -z "$old_images" ]; then
-  #   sudo docker rmi --force $old_images
-  # fi
+  if ! [ -z "$old_images" ]; then
+    # apaga imagem antiga
+    sudo docker rmi --force $old_images
+  fi
 }
 start_container_prod(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
