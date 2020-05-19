@@ -82,15 +82,7 @@ download_firmware() {
     sudo rm -f $FIRM_DIR/linker.tar.xz
     sudo mv $FIRM_DIR/_linker.tar.xz $FIRM_DIR/linker.tar.xz
 
-    # apagando arquivos antigos
-    for item in "${files_to_zip[@]}"; do
-      echo "removendo $item"
-      sudo rm -f $FIRM_DIR/$item;
-    done
-
-    echo "unzipping"
-    sleep 1
-    sudo tar -C $FIRM_DIR -xf $FIRM_DIR/linker.tar.xz
+    unzip_linker
 
     # saveCurrentVersion
     pull_images_docker
@@ -99,6 +91,17 @@ download_firmware() {
     sudo rm -f $FIRM_DIR/_linker.tar.xz
     echo "Erro ao baixar _linker.tar.xz"
   fi
+}
+unzip_linker(){
+  # apagando arquivos antigos
+  for item in "${files_to_zip[@]}"; do
+    echo "removendo $item"
+    sudo rm -f $FIRM_DIR/$item;
+  done
+
+  echo "unzipping"
+  sleep 1
+  sudo tar -C $FIRM_DIR -xf $FIRM_DIR/linker.tar.xz
 }
 close_ports(){
   ports=(
@@ -148,8 +151,8 @@ check_firmware_downloaded(){
     item_path=$FIRM_DIR/$item
     # echo "checando existencia de $item_path"
     if ! [ -f "$item_path" ]; then
-      install_shell_server
       download_firmware
+      install_shell_server
     fi
   done
 }
@@ -221,9 +224,10 @@ need_update() {
   fi
 }
 install_shell_server(){
-  sudo npm install -g express
+  cd $FIRM_DIR
+  sudo npm install express
+  sudo npm install child_process
   sudo npm link express
-  sudo npm install -g child_process
   sudo npm link child_process
 }
 install_compilador_multi_arquitetura(){
@@ -380,7 +384,7 @@ install_items(){
 
   for item in "${to_install[@]}"; do
     resp_install="install_$item"
-    eval $resp_install=$(ask_install "Instalar $item?", 10 )
+    eval $resp_install=$(ask_install "Instalar $item?" 10)
     echo
   done
 
@@ -420,15 +424,22 @@ garantir_git_configurado(){
   fi
 }
 install_sc_linker(){
-  check_missing_database_config
-  garantir_git_configurado
-  install_dependents
-  install_dev_dependents
   clone_sc_linker
   cp .env_DEVELOPMENT_sample.coffee .env_DEVELOPMENT.coffee
   cp .env_PRODUCTION_sample.coffee .env_PRODUCTION.coffee
   npm install
   npm run start_dev
+}
+install_linker_dev(){
+  cd ~
+  check_missing_database_config
+  garantir_git_configurado
+  install_dependents
+  install_dev_dependents
+  git_clone_linker_firmware
+  unzip_linker
+  install_shell_server
+  install_sc_linker
   echo
   echo SE DESEJA FAZER RELEASES SERÁ NECESSÁRIO INSTALAR O BUILDX
   install_compilador_multi_arquitetura
@@ -687,11 +698,6 @@ help(){
   echo "  linker_service restart_dev"
   echo "  linker_service stop"
 
-  echo
-  echo "Firmware: Updates e Install"
-  echo "  linker_service install_firmware"
-  echo "  linker_service update_firmware"
-  echo "  linker_service update_service"
 
   echo
   echo "Shell server"
@@ -717,8 +723,14 @@ help(){
   echo "  linker_service need_update"
 
   echo
-  echo "Config DEV Enviroment"
-  echo "  linker_service install_sc_linker"
+  echo "PROD Enviroment"
+  echo "  linker_service install_firmware"
+  echo "  linker_service update_firmware"
+  echo "  linker_service update_service"
+
+  echo
+  echo "DEV Enviroment"
+  echo "  linker_service install_linker_dev"
   echo "  linker_service git_clone_linker_firmware"
   echo "  linker_service config_git_user"
   echo "  linker_service install_dependents"
@@ -816,8 +828,8 @@ set_date)
   sudo date --set $2
   echo $2
   ;;
-install_sc_linker)
-  install_sc_linker
+install_linker_dev)
+  install_linker_dev
   ;;
 git_clone_linker_firmware)
   git_clone_linker_firmware
