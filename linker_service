@@ -8,6 +8,8 @@ DB_USER=root
 DB_PASS=$LINKER_DB_PASSWORD
 DB_NAME="linker"
 
+repo_docker_image=denoww/linker
+
 OS_LIBS="/var/lib"
 FIRM_DIR="$OS_LIBS/linker_firmware"
 SERVICE_DIR="/usr/local/bin"
@@ -37,7 +39,6 @@ declare -a files_to_copy_from_dev_dir=(
   "Dockerfile"
 )
 
-repo_docker_image=denoww/linker #:linux
 
 # architecture=$(uname -m)
 # if [[ $architecture =~ 64 ]]; then
@@ -198,7 +199,13 @@ build_and_push_docker_images(){
 }
 pull_images_docker(){
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
-  sudo docker pull $repo_docker_image
+  # old_images=$(docker images -q $repo_docker_image | uniq)
+  sudo docker pull $repo_docker_image:latest
+  sudo docker pull $repo_docker_image:latest # na seugnda vez apaga a imagem antiga
+
+  # if ! [ -z "$old_images" ]; then
+  #   sudo docker rmi --force $old_images
+  # fi
 }
 start_container_prod(){
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
