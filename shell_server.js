@@ -27,30 +27,38 @@ app.get('/', function (req, res) {
 
 // /linker_service
 app.get('/linker_service', function (req, res) {
-  backgroundCommands = ['update', 'restart_prod', 'restart_dev']
+  backgroundCommands = ['install_shell_server', 'install_firmware', 'update_firmware', 'restart_prod', 'restart_dev', 'install_dev_dependents', 'install_dependents']
 
   params = getParams(req);
   cmd = '';
   resp = {}
-  if(params.cmd){
-    cmd = "linker_service "+params.cmd;
+  shortCmd = params.cmd
+  if(shortCmd){
+    cmd = "linker_service "+shortCmd;
     resp.cmd = cmd;
 
     alreadyResponded = false;
-    if(backgroundCommands.includes(params.cmd)){
+    if(backgroundCommands.includes(shortCmd)){
       resp.status = "running"
+      resp.color = "yellow"
+      resp.msg = "Executando "+cmd
       res.json(resp);
       alreadyResponded = true;
     }
 
     shell(cmd, function(cmdError, cmdResp, stderr){
       if (cmdResp)   {
+        response = cmdResp.replace(/\n$/g, '');
         resp.status = 'success';
-        resp.response = cmdResp.replace(/\n$/g, '');
+        resp.color = "green"
+        resp.msg = "Executado "+cmd+" - Resposta: "+response
+        resp.response = response;
         console.log(cmdResp);
       }
       if (cmdError)  {
         resp.status = 'error';
+        resp.color = "red"
+        resp.msg = "Erro ao executar "+cmd
         console.log(cmdError);
       }
       if (stderr) { console.log(stderr); }
@@ -58,7 +66,9 @@ app.get('/linker_service', function (req, res) {
 
     });
   }else{
-    resp.response = "Erro: envie cmd na url";
+    resp.status = 'error';
+    resp.color = "red"
+    resp.msg = "Erro: envie cmd na url";
     res.json(resp);
   }
 });
