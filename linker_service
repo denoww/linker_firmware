@@ -199,9 +199,12 @@ build_and_push_docker_images(){
 }
 pull_images_docker(){
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml pull
-  # old_images=$(docker images -q $repo_docker_image | uniq)
   sudo docker pull $repo_docker_image:latest
-  sudo docker pull $repo_docker_image:latest # na seugnda vez apaga a imagem antiga
+
+  # remove old images
+  # quando baixamos uma imagem nova, antiga fica sem tag... o filtro dangling=true nos traz imagens sem tag
+  # dangling é imagem sem tag
+  old_images=$(docker images -q denoww/linker --filter "dangling=true" | uniq)
 
   # if ! [ -z "$old_images" ]; then
   #   sudo docker rmi --force $old_images
