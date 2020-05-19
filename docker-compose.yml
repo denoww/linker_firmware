@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  linker:
+    command: npm run start_docker_prod
+    image: denoww/linker
+    build: .
+    restart: on-failure
+    container_name: linker
+    network_mode: host
+    volumes:
+#      - .:/src/ # deve ficar ligado em builds de docker em development
+      - linker_data:/linker_data # fica guardando sqlite e config.json
+    ports:
+      - "3002:3002"
+    environment:
+      - LINKER_DB_PASSWORD=${LINKER_DB_PASSWORD}
+volumes:
+  linker_data:
