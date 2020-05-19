@@ -204,7 +204,7 @@ pull_images_docker(){
   # remove old images
   # quando baixamos uma imagem nova, antiga fica sem tag... o filtro dangling=true nos traz imagens sem tag
   # dangling é imagem sem tag
-  old_images=$(docker images -q denoww/linker --filter "dangling=true" | uniq)
+  old_images=$(docker images -q $repo_docker_image --filter "dangling=true" | uniq)
   if ! [ -z "$old_images" ]; then
     # apaga imagem antiga
     sudo docker rmi --force $old_images
