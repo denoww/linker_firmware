@@ -40,14 +40,14 @@ declare -a files_to_copy_from_dev_dir=(
 )
 
 
-# architecture=$(uname -m)
-# if [[ $architecture =~ 64 ]]; then
-  ## x86_64
-  # raspberry=false
-# elif [[ $architecture =~ armv ]]; then
-  ## armv7 - raspberry
-  # raspberry=true
-# fi
+architecture=$(uname -m)
+if [[ $architecture =~ 64 ]]; then
+  # x86_64
+  raspberry=false
+elif [[ $architecture =~ armv ]]; then
+  # armv7 - raspberry
+  raspberry=true
+fi
 
 
 # functions
@@ -380,6 +380,25 @@ install_dev_dependents(){
   install_items $to_install
 
 }
+install_aumentar_memoria_swap(){
+  if [ $raspberry == true ]; then
+
+    sudo dphys-swapfile stop
+
+    size=2048 # 2Gb
+    swap_file="/etc/dphys-swapfile"
+
+    sudo sed --in-place '/CONF_SWAPSIZE/d' $swap_file
+    sudo -- bash -c "echo CONF_SWAPSIZE=$size >> $swap_file"
+
+    sudo dphys-swapfile setup
+    sudo dphys-swapfile start
+  else
+    echo "================================================"
+    echo "Comando de Aumentar swap somente para raspberry"
+    echo "================================================"
+  fi
+}
 install_dependents() {
   check_missing_database_config
   ######### DANGER ###############################################
@@ -393,6 +412,7 @@ install_dependents() {
     "nmap"
     "pm2"
     "docker"
+    "aumentar_memoria_swap"
   )
   install_items $to_install
 }
