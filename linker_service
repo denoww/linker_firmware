@@ -419,18 +419,18 @@ install_dependents() {
     "pm2"
     "docker"
     "aumentar_memoria_swap"
-    "startup_boot_e_auto_update"
+    "crontabs_linker"
   )
   install_items $to_install
 }
-uninstall_startup_boot_e_auto_update(){
+uninstall_crontabs_linker(){
   sudo rm -f $cron_tab_linker_file
 }
-install_startup_boot_e_auto_update(){
+install_crontabs_linker(){
   # user=${USER}
   user='root'
 
-  uninstall_startup_boot_e_auto_update
+  uninstall_crontabs_linker
   sudo touch $cron_tab_linker_file
 
   _linker_service=/usr/local/bin/linker_service
@@ -438,6 +438,7 @@ install_startup_boot_e_auto_update(){
   declare -a cmds=(
     "@reboot $user $_linker_service start_prod" # ao iniciar device ligar servidor
     "@reboot $user $_linker_service update_firmware" # ao iniciar device update_firmware
+    "@reboot $user $_linker_service install_crontabs_linker" # ao iniciar atualizar crontabs
     "\* 3 \* \* \* $user $_linker_service reboot_device" # de madrugada reboot_device
   )
 
@@ -453,7 +454,7 @@ uninstall_dependents(){
   ######### DANGER ###############################################
   declare -a to_install=(
     "mariadb"
-    "startup_boot_e_auto_update"
+    "crontabs_linker"
   )
   uninstall_items $to_install
 }
@@ -856,6 +857,8 @@ help(){
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
   echo "  linker_service reboot_device"
+  echo "  linker_service install_crontabs_linker"
+
 
 
 
@@ -947,6 +950,9 @@ set_timezone)
 set_date)
   sudo date --set $2
   echo $2
+  ;;
+install_crontabs_linker)
+  install_crontabs_linker
   ;;
 install_linker_dev)
   install_linker_dev
