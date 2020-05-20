@@ -187,9 +187,9 @@ build_and_push_docker_images(){
 
   # build e push em amd64 e arm
   # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
-  DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
-
   echo "pushed docker images..."
+  DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+  echo $?
 
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
   # sudo docker manifest create denoww/linker:latest denoww/linker:linux
@@ -543,40 +543,47 @@ release(){
   _ensure_firm_repo_updated
   echo "releasing..."
 
-  build_and_push_docker_images
+  pushed=$(build_and_push_docker_images)
+  if [[ $pushed -eq 0 ]]; then
 
-  # incrementando versão
-  old_version=$(last_version)
-  new_version=$(echo "$old_version" | tr -dc '0-9')
-  new_version="$(($new_version + 1))"
+    # incrementando versão
+    old_version=$(last_version)
+    new_version=$(echo "$old_version" | tr -dc '0-9')
+    new_version="$(($new_version + 1))"
 
-  # atualizando .current_version
-  echo Criando current_version
-  sudo -- bash -c "echo $new_version > $FIRM_DIR/current_version"
+    # atualizando .current_version
+    echo Criando current_version
+    sudo -- bash -c "echo $new_version > $FIRM_DIR/current_version"
 
-  echo "removendo zip antigo..."
-  sudo rm -f $FIRM_DIR/linker.tar.xz
-  echo "zipping..."
-  # tar -C $FIRM_DIR -cvf - docker-compose.yml Dockerfile current_version | xz -5 -c - > $FIRM_DIR/linker.tar.xz
-  tar -C $FIRM_DIR -cvf - "${files_to_zip[@]}" | xz -5 -c - > $FIRM_DIR/linker.tar.xz
+    echo "removendo zip antigo..."
+    sudo rm -f $FIRM_DIR/linker.tar.xz
+    echo "zipping..."
+    # tar -C $FIRM_DIR -cvf - docker-compose.yml Dockerfile current_version | xz -5 -c - > $FIRM_DIR/linker.tar.xz
+    tar -C $FIRM_DIR -cvf - "${files_to_zip[@]}" | xz -5 -c - > $FIRM_DIR/linker.tar.xz
 
-  git -C $FIRM_DIR add .
+    git -C $FIRM_DIR add .
 
-  echo "Push master"
-  git -C $FIRM_DIR commit -m "Nova Versão $new_version"
-  git -C $FIRM_DIR push origin master
+    echo "Push master"
+    git -C $FIRM_DIR commit -m "Nova Versão $new_version"
+    git -C $FIRM_DIR push origin master
 
-  echo "Apagando todas tags antigas"
-  git -C $FIRM_DIR fetch
-  git push origin --delete $(git tag -l) # remote
-  git -C $FIRM_DIR tag -l | xargs git tag -d # local
+    echo "Apagando todas tags antigas"
+    git -C $FIRM_DIR fetch
+    git push origin --delete $(git tag -l) # remote
+    git -C $FIRM_DIR tag -l | xargs git tag -d # local
 
-  echo "Criando novas tags $new_version"
-  git -C $FIRM_DIR tag $new_version # local
-  git -C $FIRM_DIR push origin $new_version # remote
+    echo "Criando novas tags $new_version"
+    git -C $FIRM_DIR tag $new_version # local
+    git -C $FIRM_DIR push origin $new_version # remote
 
-  echo "Release da nova versão"
-  echo "  $new_version"
+    echo "Release da nova versão"
+    echo "  $new_version"
+  else
+    echo "xx--------------------------------xx"
+    echo "Erro ao fazer push"
+    echo "xx--------------------------------xx"
+    exit 1
+  fi
 }
 logs(){
   docker logs -f linker
