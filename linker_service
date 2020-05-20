@@ -183,7 +183,8 @@ build_and_push_docker_images(){
 
   # criar perfil
   # sudo docker buildx create --use --name build --node build --driver-opt network=host
-  docker buildx create --use --name build --node build --driver-opt network=host
+  # docker buildx create --use --name build --node build --driver-opt network=host
+  docker buildx create --use
 
   # build e push em amd64 e arm
   # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
@@ -544,6 +545,7 @@ release(){
   echo "releasing..."
 
   pushed=$(build_and_push_docker_images)
+  # pushed=0
   if [[ $pushed -eq 0 ]]; then
 
     # incrementando versão
@@ -559,6 +561,7 @@ release(){
     sudo rm -f $FIRM_DIR/linker.tar.xz
     echo "zipping..."
     # tar -C $FIRM_DIR -cvf - docker-compose.yml Dockerfile current_version | xz -5 -c - > $FIRM_DIR/linker.tar.xz
+    sleep 2
     tar -C $FIRM_DIR -cvf - "${files_to_zip[@]}" | xz -5 -c - > $FIRM_DIR/linker.tar.xz
 
     git -C $FIRM_DIR add .
@@ -579,14 +582,15 @@ release(){
     echo "Release da nova versão"
     echo "  $new_version"
   else
-    echo "xx--------------------------------xx"
-    echo "Erro ao fazer push"
-    echo "xx--------------------------------xx"
+    echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    echo "Erro ao fazer push em docker hub"
+    echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    echo "Tente fazer $ linker_service install_compilador_multi_arquitetura"
     exit 1
   fi
 }
 logs(){
-  docker logs -f linker
+  sudo docker logs -f linker
 }
 logs_dev(){
   echo
