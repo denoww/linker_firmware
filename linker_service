@@ -645,6 +645,8 @@ release(){
 
     # atualizando .current_version
     echo Criando current_version
+    sudo mv $FIRM_DIR/current_version $FIRM_DIR/_current_version
+
     sudo -- bash -c "echo $new_version > $FIRM_DIR/current_version"
 
     echo "removendo zip antigo..."
@@ -653,6 +655,9 @@ release(){
     # tar -C $FIRM_DIR -cvf - docker-compose.yml Dockerfile current_version | xz -5 -c - > $FIRM_DIR/linker.tar.xz
     sleep 2
     tar -C $FIRM_DIR -cvf - "${files_to_zip[@]}" | xz -5 -c - > $FIRM_DIR/linker.tar.xz
+
+    sudo rm -f $FIRM_DIR/current_version
+    sudo mv $FIRM_DIR/_current_version $FIRM_DIR/current_version
 
     git -C $FIRM_DIR add .
 
