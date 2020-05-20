@@ -3,6 +3,9 @@
 env_file=/etc/environment
 source $env_file
 
+# crtontab file
+cron_tab_linker_file="/etc/cron.d/linker"
+
 # database
 DB_USER=root
 DB_PASS=$LINKER_DB_PASSWORD
@@ -416,35 +419,64 @@ install_dependents() {
     "pm2"
     "docker"
     "aumentar_memoria_swap"
+    "startup_boot_e_auto_update"
   )
   install_items $to_install
 }
+uninstall_startup_boot_e_auto_update(){
+  sudo rm -f $cron_tab_linker_file
+}
+install_startup_boot_e_auto_update(){
+  # user=${USER}
+  user='root'
+
+  uninstall_startup_boot_e_auto_update
+  sudo touch $cron_tab_linker_file
+
+
+  # ao iniciar
+    # ligar servidor
+    # update_firmware
+  # as 3 da manha
+    # reboot_device
+
+  declare -a cmds=(
+    "@reboot $user linker_service start_prod"
+    "@reboot $user linker_service update_firmware"
+    "\* 3 \* \* \* $user linker_service reboot_device"
+  )
+
+  for cmd in "${cmds[@]}"; do
+    sudo -- bash -c "echo $cmd >> $cron_tab_linker_file"
+  done
+  sudo chown root:root $cron_tab_linker_file
+}
 uninstall_dependents(){
-  check_missing_database_config
   ######### DANGER ###############################################
   # criar aqui no shellscript
   # install_mariadb, install_node, install_shell_server etc
   ######### DANGER ###############################################
   declare -a to_install=(
     "mariadb"
+    "startup_boot_e_auto_update"
   )
-  unininstall_items $to_install
+  uninstall_items $to_install
 }
-unininstall_items(){
+uninstall_items(){
   sudo echo
-  to_uninstall=$1
+  to_install=$1
 
-  for item in "${to_uninstall[@]}"; do
-    resp_uninstall="uninstall_$item"
-    eval $resp_uninstall=$(ask_install "Desinstalar $item?" 10)
+  for item in "${to_install[@]}"; do
+    resp_install="uninstall_$item"
+    eval $resp_install=$(ask_install "Desinstalar $item?" 10)
     echo
   done
 
-  for item in "${to_uninstall[@]}"; do
-    uninstall_item="uninstall_$item"
-    resp_uninstall="${!uninstall_item}"
-    if [ "$resp_uninstall" == true ]; then
-      eval $uninstall_item
+  for item in "${to_install[@]}"; do
+    install_item="uninstall_$item"
+    resp_install="${!install_item}"
+    if [ "$resp_install" == true ]; then
+      eval $install_item
     fi
   done
 }
@@ -669,6 +701,9 @@ update_firmware(){
     echo "Já está na última versão"
   fi
 }
+reboot_device(){
+  sudo reboot –f
+}
 install_firmware(){
   check_missing_database_config
   update_service
@@ -825,6 +860,8 @@ help(){
   echo "  linker_service install_shell_server"
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
+  echo "  linker_service reboot_device"
+
 
 
 
@@ -939,6 +976,9 @@ uninstall_dependents)
   ;;
 install_dependents)
   install_dependents
+  ;;
+reboot_device)
+  reboot_device
   ;;
 config_git_user)
   config_git_user
