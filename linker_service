@@ -383,7 +383,7 @@ install_dev_dependents(){
 install_aumentar_memoria_swap(){
   if [ $raspberry == true ]; then
 
-    sudo dphys-swapfile stop
+    sudo dphys-swapfile swapoff
 
     size=2048 # 2Gb
     swap_file="/etc/dphys-swapfile"
@@ -392,7 +392,7 @@ install_aumentar_memoria_swap(){
     sudo -- bash -c "echo CONF_SWAPSIZE=$size >> $swap_file"
 
     sudo dphys-swapfile setup
-    sudo dphys-swapfile start
+    sudo dphys-swapfile swapon
   else
     echo "================================================"
     echo "Comando de Aumentar swap somente para raspberry"
