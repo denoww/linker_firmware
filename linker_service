@@ -255,6 +255,11 @@ install_compilador_multi_arquitetura(){
   echo "============================================================================================="
 }
 
+reinstall_mariadb(){
+  uninstall_mariadb
+  install_mariadb
+}
+
 install_mariadb(){
   # mariadb
   sudo apt-get install -y mariadb-server
@@ -390,6 +395,40 @@ install_dependents() {
     "docker"
   )
   install_items $to_install
+}
+uninstall_dependents(){
+  check_missing_database_config
+  ######### DANGER ###############################################
+  # criar aqui no shellscript
+  # install_mariadb, install_node, install_shell_server etc
+  ######### DANGER ###############################################
+  declare -a to_install=(
+    "mariadb"
+  )
+  unininstall_items $to_install
+}
+unininstall_items(){
+  sudo echo
+  to_uninstall=$1
+
+  for item in "${to_uninstall[@]}"; do
+    resp_uninstall="uninstall_$item"
+    eval $resp_uninstall=$(ask_install "Desinstalar $item?" 10)
+    echo
+  done
+
+  for item in "${to_uninstall[@]}"; do
+    uninstall_item="uninstall_$item"
+    resp_uninstall="${!uninstall_item}"
+    if [ "$resp_uninstall" == true ]; then
+      eval $uninstall_item
+    fi
+  done
+}
+uninstall_mariadb(){
+  sudo apt-get -y purge mariadb*
+  sudo apt-get -y remove mariadb*
+  sudo apt-get -y autoremove
 }
 install_items(){
   sudo echo
@@ -756,7 +795,9 @@ help(){
   echo "  linker_service install_linker_dev"
   echo "  linker_service git_clone_linker_firmware"
   echo "  linker_service config_git_user"
+  echo "  linker_service reinstall_mariadb"
   echo "  linker_service install_dependents"
+  echo "  linker_service uninstall_dependents"
   echo "  linker_service install_dev_dependents"
   echo "  linker_service install_shell_server"
   echo "  linker_service install_compilador_multi_arquitetura"
@@ -864,8 +905,14 @@ install_compilador_multi_arquitetura)
 install_dev_dependents)
   install_dev_dependents
   ;;
+reinstall_mariadb)
+  reinstall_mariadb
+  ;;
 install_shell_server)
   install_shell_server
+  ;;
+uninstall_dependents)
+  uninstall_dependents
   ;;
 install_dependents)
   install_dependents
