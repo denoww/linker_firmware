@@ -433,17 +433,17 @@ install_startup_boot_e_auto_update(){
   uninstall_startup_boot_e_auto_update
   sudo touch $cron_tab_linker_file
 
+  _linker_service=/usr/local/bin/linker_service
 
   # ao iniciar
     # ligar servidor
     # update_firmware
   # as 3 da manha
     # reboot_device
-
   declare -a cmds=(
-    "@reboot $user linker_service start_prod"
-    "@reboot $user linker_service update_firmware"
-    "\* 3 \* \* \* $user linker_service reboot_device"
+    "@reboot $user $_linker_service start_prod"
+    "@reboot $user $_linker_service update_firmware"
+    "\* 3 \* \* \* $user $_linker_service reboot_device"
   )
 
   for cmd in "${cmds[@]}"; do
