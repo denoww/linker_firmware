@@ -235,6 +235,7 @@ need_update() {
   fi
 }
 install_shell_server(){
+  check_firmware_downloaded
   cd $FIRM_DIR
   sudo npm install express
   sudo npm install child_process
@@ -746,6 +747,7 @@ help(){
   echo "  linker_service config_git_user"
   echo "  linker_service install_dependents"
   echo "  linker_service install_dev_dependents"
+  echo "  linker_service install_shell_server"
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
 
@@ -850,6 +852,9 @@ install_compilador_multi_arquitetura)
   ;;
 install_dev_dependents)
   install_dev_dependents
+  ;;
+install_shell_server)
+  install_shell_server
   ;;
 install_dependents)
   install_dependents
