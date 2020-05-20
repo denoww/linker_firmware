@@ -192,16 +192,22 @@ build_and_push_docker_images(){
   # build e push em amd64 e arm
   # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
   echo "pushed docker images..."
-  DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --tag denoww/linker:latest
-  builded=$?
-  if [[ $builded -eq 0 ]]; then
-    # push
-    DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
-    pushed=$?
-    echo $pushed
-  else
-    echo $builded
-  fi
+
+  DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+  pushed=$?
+  echo $pushed
+
+  # faz o cache
+  # DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --tag denoww/linker:latest
+  # builded=$?
+  # if [[ $builded -eq 0 ]]; then
+  #   # push
+  #   DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
+  #   pushed=$?
+  #   echo $pushed
+  # else
+  #   echo $builded
+  # fi
 
   # sudo docker-compose -f $FIRM_DIR/docker-compose.yml push
   # sudo docker manifest create denoww/linker:latest denoww/linker:linux
