@@ -288,8 +288,8 @@ ask_config_to_config_database(){
 
   if ! [ -z "$DB_PASS" ]; then
     # coloca a senha em /etc/environment
-    sudo sed --in-place '/LINKER_DB_PASSWORD/d' $env_file
-    sudo -- bash -c "echo LINKER_DB_PASSWORD=\"$DB_PASS\" >> $env_file"
+    sudo sed --in-place '/LINKER_DB_PASSWORD/d' $env_file # remove a linha
+    sudo -- bash -c "echo LINKER_DB_PASSWORD=\"$DB_PASS\" >> $env_file" # add denovo a linha
     source $env_file
   fi
 }
@@ -383,14 +383,17 @@ install_dev_dependents(){
 install_aumentar_memoria_swap(){
   if [ $raspberry == true ]; then
 
+    # stop
     sudo dphys-swapfile swapoff
 
+    # modifica tamanho
     size=2048 # 2Gb
     swap_file="/etc/dphys-swapfile"
 
-    sudo sed --in-place '/CONF_SWAPSIZE/d' $swap_file
-    sudo -- bash -c "echo CONF_SWAPSIZE=$size >> $swap_file"
+    sudo sed --in-place '/CONF_SWAPSIZE/d' $swap_file # remove a linha
+    sudo -- bash -c "echo CONF_SWAPSIZE=$size >> $swap_file" # add denovo a linha
 
+    # start
     sudo dphys-swapfile setup
     sudo dphys-swapfile swapon
   else
