@@ -177,9 +177,7 @@ start_dev(){
   help_start
   logs_dev
 }
-
-build_and_push_docker_images(){
-
+docker_hub_login(){
   # login
   # sudo docker login
   docker login
@@ -188,10 +186,12 @@ build_and_push_docker_images(){
   # sudo docker buildx create --use --name build --node build --driver-opt network=host
   # docker buildx create --use --name build --node build --driver-opt network=host
   docker buildx create --use
-
+}
+build_and_push_docker_images(){
   # build e push em amd64 e arm
   # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
-  echo "pushed docker images..."
+
+  docker_hub_login
 
   DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
   pushed=$?
