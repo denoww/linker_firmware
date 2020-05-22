@@ -478,6 +478,8 @@ install_crontabs_linker(){
     sudo -- bash -c "echo $cmd >> $cron_tab_linker_file"
   done
   sudo chown root:root $cron_tab_linker_file
+
+  echo "Instalado crontabs jobs"
 }
 uninstall_dependents(){
   ######### DANGER ###############################################
