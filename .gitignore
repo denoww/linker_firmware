@@ -4,6 +4,6 @@
 !shell_server.*
 !Dockerfile
 !docker-compose.yml
-!current_version
+# !current_version
 !README.md
 !.gitignore
