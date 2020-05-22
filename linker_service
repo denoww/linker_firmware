@@ -451,9 +451,9 @@ install_crontabs_linker(){
   mkdir -p $folder_logs
 
   declare -a cmds=(
-    "@reboot $user $_linker_service start_prod \>\> $folder_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
-    "@reboot $user $_linker_service update_firmware \>\> $folder_logs/update_firmware \2\>\&\1" # ao iniciar device update_firmware
-    "@reboot $user $_linker_service install_crontabs_linker \>\> $folder_logs/install_crontabs_linker \2\>\&\1" # ao iniciar atualizar crontabs
+    "@reboot sleep 10 \&\& $user $_linker_service start_prod \>\> $folder_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
+    "@reboot sleep 10 \&\& $user $_linker_service update_firmware \>\> $folder_logs/update_firmware \2\>\&\1" # ao iniciar device update_firmware
+    "@reboot sleep 10 \&\& $user $_linker_service install_crontabs_linker \>\> $folder_logs/install_crontabs_linker \2\>\&\1" # ao iniciar atualizar crontabs
     "\* 3 \* \* \* $user $_linker_service reboot_device \>\> $folder_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
   )
 
