@@ -446,15 +446,32 @@ install_crontabs_linker(){
   uninstall_crontabs_linker
   sudo touch $cron_tab_linker_file
 
-  _linker_service=/usr/local/bin/linker_service
   folder_logs="$FIRM_DIR/crontab_logs"
   mkdir -p $folder_logs
 
+  local_linker_service=/usr/local/bin/linker_service
+  web_linker_service="wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
+  # web_linker_service="wget -O /dev/null https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
   declare -a cmds=(
-    "@reboot $user sleep 30 \&\& $_linker_service start_prod \>\> $folder_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
-    "@reboot $user sleep 30 \&\& $_linker_service update_firmware \>\> $folder_logs/update_firmware \2\>\&\1" # ao iniciar device update_firmware
-    "@reboot $user sleep 30 \&\& $_linker_service install_crontabs_linker \>\> $folder_logs/install_crontabs_linker \2\>\&\1" # ao iniciar atualizar crontabs
-    "\* 3 \* \* \* $user $_linker_service reboot_device \>\> $folder_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
+
+    # start_prod
+    "@reboot $user $local_linker_service start_prod \> $folder_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
+
+    # update_service
+    "@reboot $user sleep 30 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_logs/update_service \2\>\&\1"
+
+    # update_firmware
+    "@reboot $user sleep 30 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_logs/update_firmware \2\>\&\1"
+
+    # install_crontabs_linker
+    "@reboot $user sleep 30 \&\& bash -c \'$web_linker_service \| bash -s install_crontabs_linker\' \> $folder_logs/install_crontabs_linker \2\>\&\1"
+
+    # reboot as 3 da manha
+    "\* 3 \* \* \* $user $local_linker_service reboot_device \> $folder_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
+
+
+    # "@reboot $user sleep 30 \&\& $local_linker_service update_firmware \> $folder_logs/update_firmware \2\>\&\1" # ao iniciar device update_firmware
+    # "@reboot $user sleep 30 \&\& $local_linker_service install_crontabs_linker \> $folder_logs/install_crontabs_linker \2\>\&\1" # ao iniciar atualizar crontabs
   )
 
   for cmd in "${cmds[@]}"; do
