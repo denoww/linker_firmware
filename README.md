@@ -4,7 +4,7 @@
 
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install_firmware
 
-- sem perguntar o que quer instalar
+- -f para instalar tudo sem perguntar
 
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install_firmware -f
 
