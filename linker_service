@@ -860,6 +860,7 @@ help(){
 
   echo
   echo "Esqueceu senha"
+  echo "  linker_service reset_data"
   echo "  linker_service reset_data_prod"
   echo "  linker_service reset_data_dev"
 
@@ -972,6 +973,9 @@ current_version)
   ;;
 last_version)
   last_version
+  ;;
+reset_data)
+  reset_data
   ;;
 reset_data_prod)
   reset_data_prod
