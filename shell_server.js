@@ -46,6 +46,8 @@ app.get('/linker_service', function (req, res) {
       alreadyResponded = true;
     }
 
+    // cmdWithLogs = cmd+" >> /var/lib/linker_firmware/xxxx.logs"
+    // shell(cmdWithLogs, function(cmdError, cmdResp, stderr){
     shell(cmd, function(cmdError, cmdResp, stderr){
       if (cmdResp)   {
         response = cmdResp.replace(/\n$/g, '');
