@@ -31,3 +31,4 @@
 #### reset_data (caso não saibam a senha de /config)
 
 - linker_service reset_data_prod
+- linker_service reset_data_dev
