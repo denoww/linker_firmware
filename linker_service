@@ -757,13 +757,21 @@ reboot_device(){
   sudo reboot –f
 }
 install_firmware(){
-  check_missing_database_config
-  update_service
-  install_dependents
-  download_firmware
+  # check_missing_database_config
+  # update_service
+  # install_dependents
+  # download_firmware
+  echo
+  echo "=========================================================================================================="
   echo "Agora faça"
   echo "  $ linker_service start_prod"
   echo "    Obs: Caso os 2 servidores não ligarem reinicie o computar e tente denovo $ linker_service start_prod"
+  echo
+  echo "=========================================================================================================="
+  echo "Teamviewer - Instale agora"
+  echo "  https://www.teamviewer.com/pt-br/download/linux/"
+  echo "    Antes de definir a senha, pergunte para um desenvolvedor qual a senha"
+  echo
 }
 # build_prod_and_release(){
 #   _can_release
@@ -898,6 +906,7 @@ help(){
   echo
   echo "PROD Enviroment"
   echo "  linker_service install_firmware"
+  echo "  linker_service install_firmware -force"
   echo "  linker_service update_firmware"
   echo "  linker_service update_service"
 
