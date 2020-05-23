@@ -189,6 +189,8 @@ docker_hub_login(){
   docker buildx create --use
 }
 build_and_push_docker_images(){
+  _ensure_dev_repo_updated
+
   # build e push em amd64 e arm
   # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
 
@@ -496,7 +498,12 @@ uninstall_items(){
 
   for item in "${to_install[@]}"; do
     resp_install="uninstall_$item"
-    eval $resp_install=$(ask_install "Desinstalar $item?" 10)
+
+    if [ "$force" == true ]; then
+      eval $resp_install=$force
+    else
+      eval $resp_install=$(ask_install "Desinstalar $item?")
+    fi
     echo
   done
 
@@ -519,7 +526,11 @@ install_items(){
 
   for item in "${to_install[@]}"; do
     resp_install="install_$item"
-    eval $resp_install=$(ask_install "Instalar $item?" 10)
+    if [ "$force" == true ]; then
+      eval $resp_install=$force
+    else
+      eval $resp_install=$(ask_install "Instalar $item?")
+    fi
     echo
   done
 
@@ -610,18 +621,12 @@ _can_build() {
     exit
   fi
 }
-build(){
-  sudo echo "Iniciando..."
-  _can_build
-  _ensure_firm_repo_updated
-
-
+_ensure_dev_repo_updated(){
   # cd
   echo "Garantindo repositorio $(dev_dir) atualizado..."
   git -C $(dev_dir) pull origin master
-
-  sudo docker build --tag $repo_docker_image $(dev_dir)
-
+}
+copy_dev_files_to_zip(){
   # copy some files
   for item in "${files_to_copy_from_dev_dir[@]}"; do
     sudo rm -f $FIRM_DIR/$item
@@ -634,6 +639,17 @@ build(){
 
   # start em start_docker_production invés de start_docker_devepoment
   sed -i 's/start_docker_dev/start_docker_prod/g' $FIRM_DIR/docker-compose.yml
+}
+build(){
+  sudo echo "Iniciando..."
+  _can_build
+  _ensure_firm_repo_updated
+
+
+  _ensure_dev_repo_updated
+  sudo docker build --tag $repo_docker_image $(dev_dir)
+
+  copy_dev_files_to_zip
 
   echo "installer finished!"
 
@@ -669,6 +685,8 @@ release(){
   build_and_push_docker_images
   # pushed=0
   if [[ $builded_and_pushed -eq 0 ]]; then
+
+    copy_dev_files_to_zip
 
     # incrementando versão
     old_version=$(last_version)
@@ -888,10 +906,17 @@ help(){
   echo "  linker_service install_linker_dev"
   echo "  linker_service git_clone_linker_firmware"
   echo "  linker_service config_git_user"
-  echo "  linker_service reinstall_mariadb"
+  echo
   echo "  linker_service install_dependents"
+  echo "  linker_service install_dependents -force"
+  echo
   echo "  linker_service uninstall_dependents"
+  echo "  linker_service uninstall_dependents -force"
+  echo
   echo "  linker_service install_dev_dependents"
+  echo "  linker_service install_dev_dependents -force"
+  echo
+  echo "  linker_service reinstall_mariadb"
   echo "  linker_service install_shell_server"
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
@@ -905,6 +930,13 @@ help(){
 
   echo
 }
+
+
+case $2 in
+  force|-force|-f )
+    force=true
+    ;;
+esac
 
 ###################################################
 case $1 in
