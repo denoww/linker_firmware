@@ -734,6 +734,7 @@ update_firmware(){
   fi
 }
 reboot_device(){
+  echo "Reinciando device..."
   sudo reboot –f
 }
 install_firmware(){
