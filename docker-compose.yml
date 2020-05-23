@@ -12,7 +12,9 @@ services:
       - linker_data:/linker_data # fica guardando sqlite e config.json
     ports:
       - "3002:3002"
-    environment:
-      - LINKER_DB_PASSWORD=${LINKER_DB_PASSWORD}
+    env_file:
+      /etc/environment
+    # environment:
+    #   - LINKER_DB_PASSWORD=${LINKER_DB_PASSWORD}
 volumes:
   linker_data:
