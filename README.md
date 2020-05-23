@@ -1,5 +1,11 @@
 #### install_firmware
 
+pergunta o que quer instalar
+
+wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install_firmware
+
+sem perguntar o que quer instalar
+
 wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install_firmware
 
 #### update_firmware
