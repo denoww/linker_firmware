@@ -466,7 +466,7 @@ install_cronjobs(){
     "@reboot $user mkdir -p $folder_cron_logs"
 
     # start_prod
-    "@reboot $user sleep 2 $local_linker_service start_prod \> $folder_cron_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
+    "@reboot $user sleep 2 \&\& $local_linker_service start_prod \> $folder_cron_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
 
     # update_service
     "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_cron_logs/update_service \2\>\&\1"
