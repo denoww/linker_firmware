@@ -466,13 +466,13 @@ install_crontabs_linker(){
     "@reboot $user $local_linker_service start_prod \> $cron_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
 
     # update_service
-    "@reboot $user sleep 60 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $cron_logs/update_service \2\>\&\1"
+    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $cron_logs/update_service \2\>\&\1"
 
     # update_firmware
-    "@reboot $user sleep 60 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $cron_logs/update_firmware \2\>\&\1"
+    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $cron_logs/update_firmware \2\>\&\1"
 
     # install_crontabs_linker
-    "@reboot $user sleep 60 \&\& bash -c \'$web_linker_service \| bash -s install_crontabs_linker\' \> $cron_logs/install_crontabs_linker \2\>\&\1"
+    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s install_crontabs_linker\' \> $cron_logs/install_crontabs_linker \2\>\&\1"
 
     # reboot as 3 da manha
     "\* 3 \* \* \* $user $local_linker_service reboot_device \> $cron_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
