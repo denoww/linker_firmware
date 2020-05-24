@@ -1,18 +1,21 @@
 #!/bin/bash
 
+# variáveis ambiente
 env_file=/etc/environment
 source $env_file
 
 # crtontab file
 cron_tab_linker_file="/etc/cron.d/linker"
 
-# database
+# database credentials
 DB_USER=root
 DB_PASS=$LINKER_DB_PASSWORD
 DB_NAME="linker"
 
+# repo docker
 repo_docker_image=denoww/linker
 
+# project folders
 OS_LIBS="/var/lib"
 FIRM_DIR="$OS_LIBS/linker_firmware"
 SERVICE_DIR="/usr/local/bin"
@@ -31,6 +34,7 @@ dev_dir(){
 }
 
 
+# files_to_zip
 declare -a files_to_zip=(
   "Dockerfile"
   "docker-compose.yml"
@@ -38,6 +42,7 @@ declare -a files_to_zip=(
   "shell_server.js"
 )
 
+# files_to_copy_from_dev_dir
 declare -a files_to_copy_from_dev_dir=(
   "docker-compose.yml"
   "Dockerfile"
