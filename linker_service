@@ -440,18 +440,18 @@ install_dependents() {
     "pm2"
     "docker"
     "aumentar_memoria_swap"
-    "crontabs_linker"
+    "cronjobs"
   )
   install_items $to_install
 }
-uninstall_crontabs_linker(){
+uninstall_cronjobs(){
   sudo rm -f $cron_tab_linker_file
 }
-install_crontabs_linker(){
+install_cronjobs(){
   # user=${USER}
   user='root'
 
-  uninstall_crontabs_linker
+  uninstall_cronjobs
   sudo touch $cron_tab_linker_file
 
   folder_cron_logs="$FOLDER_LOGS/crontabs"
@@ -474,8 +474,8 @@ install_crontabs_linker(){
     # update_firmware
     "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_cron_logs/update_firmware \2\>\&\1"
 
-    # install_crontabs_linker
-    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s install_crontabs_linker\' \> $folder_cron_logs/install_crontabs_linker \2\>\&\1"
+    # install_cronjobs
+    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s install_cronjobs\' \> $folder_cron_logs/install_cronjobs \2\>\&\1"
 
     # reboot as 3 da manha
     "\* 3 \* \* \* $user $local_linker_service reboot_device \> $folder_cron_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
@@ -496,7 +496,7 @@ uninstall_dependents(){
   ######### DANGER ###############################################
   declare -a to_install=(
     "mariadb"
-    "crontabs_linker"
+    "cronjobs"
   )
   uninstall_items $to_install
 }
@@ -938,7 +938,7 @@ help(){
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
   echo "  linker_service reboot_device"
-  echo "  linker_service install_crontabs_linker"
+  echo "  linker_service install_cronjobs"
 
 
 
@@ -1042,11 +1042,11 @@ set_date)
   sudo date --set $2
   echo $2
   ;;
-uninstall_crontabs_linker)
-  uninstall_crontabs_linker
+uninstall_cronjobs)
+  uninstall_cronjobs
   ;;
-install_crontabs_linker)
-  install_crontabs_linker
+install_cronjobs)
+  install_cronjobs
   ;;
 install_linker_dev)
   install_linker_dev
