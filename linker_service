@@ -463,24 +463,22 @@ install_crontabs_linker(){
   declare -a cmds=(
 
     # criar pasta
-    "mkdir -p $folder_cron_logs"
-
-    '\$folder_cron_logs='$folder_cron_logs
+    "@reboot $user mkdir -p $folder_cron_logs"
 
     # start_prod
-    "@reboot $user $local_linker_service start_prod \> $folder_cron_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
+    "@reboot $user sleep 2 $local_linker_service start_prod \> $folder_cron_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
 
     # update_service
-    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> '\$folder_cron_logs'/update_service \2\>\&\1"
+    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_cron_logs/update_service \2\>\&\1"
 
     # update_firmware
-    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> '\$folder_cron_logs'/update_firmware \2\>\&\1"
+    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_cron_logs/update_firmware \2\>\&\1"
 
     # install_crontabs_linker
-    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s install_crontabs_linker\' \> '\$folder_cron_logs'/install_crontabs_linker \2\>\&\1"
+    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s install_crontabs_linker\' \> $folder_cron_logs/install_crontabs_linker \2\>\&\1"
 
     # reboot as 3 da manha
-    "\* 3 \* \* \* $user $local_linker_service reboot_device \> '\$folder_cron_logs'/reboot_device \2\>\&\1" # de madrugada reboot_device
+    "\* 3 \* \* \* $user $local_linker_service reboot_device \> $folder_cron_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
 
   )
 
