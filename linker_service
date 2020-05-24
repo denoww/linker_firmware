@@ -318,8 +318,9 @@ ask_config_to_config_database(){
   fi
 }
 recreate_database(){
- sudo mysql -u $DB_USER -p"$DB_PASS" -e "DROP DATABASE $DB_NAME"
- sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
+  echo "Recriando bando de dados $DB_NAME"
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "DROP DATABASE $DB_NAME"
+  sudo mysql -u $DB_USER -p"$DB_PASS" -e "CREATE DATABASE $DB_NAME"
 }
 db_console(){
   check_missing_database_config
