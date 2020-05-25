@@ -2,9 +2,10 @@
 
 - pergunta o que quer instalar
 
-  - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install_firmware
+  - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
+  - linker_service install_firmware
 
-- -f para instalar tudo sem perguntar
+- instalar tudo sem perguntar
 
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install_firmware -f
 
