@@ -2,6 +2,7 @@
 
 # variáveis ambiente
 env_file=/etc/environment
+LINKER_DB_PASSWORD=
 source $env_file
 
 # crtontab file
@@ -282,12 +283,14 @@ install_compilador_multi_arquitetura(){
 }
 
 reinstall_mariadb(){
+  check_missing_database_config
   uninstall_mariadb
   install_mariadb
 }
 
 install_mariadb(){
   # mariadb
+  check_missing_database_config
   sudo apt-get install -y mariadb-server
   config_database
 
@@ -309,10 +312,12 @@ check_missing_database_config(){
   fi
 }
 ask_config_to_config_database(){
-  read -p "Escolha uma senha pro banco de dados: "
-  DB_PASS=$REPLY
+  if ! [ "$force" == true ]; then
+    read -p "Escolha uma senha pro banco de dados: "
+    DB_PASS=$REPLY
+  fi
 
-  if [ -z "$DB_PASS" ] || [ "$force" == true ]; then
+  if [ -z "$DB_PASS" ]; then
     # gera um texto random de 32 caracteres
     DB_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
   fi
