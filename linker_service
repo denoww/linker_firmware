@@ -313,6 +313,7 @@ ask_config_to_config_database(){
   DB_PASS=$REPLY
 
   if [ -z "$DB_PASS" ] || [ "$force" == true ]; then
+    # gera um texto random de 32 caracteres
     DB_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
   fi
 
