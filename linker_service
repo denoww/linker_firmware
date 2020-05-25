@@ -312,12 +312,14 @@ ask_config_to_config_database(){
   read -p "Escolha uma senha pro banco de dados: "
   DB_PASS=$REPLY
 
-  if ! [ -z "$DB_PASS" ]; then
-    # coloca a senha em /etc/environment
-    sudo sed --in-place '/LINKER_DB_PASSWORD/d' $env_file # remove a linha
-    sudo -- bash -c "echo LINKER_DB_PASSWORD=\"$DB_PASS\" >> $env_file" # add denovo a linha
-    source $env_file
+  if [ -z "$DB_PASS" ] || [ "$force" == true ]; then
+    DB_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
   fi
+
+  # coloca a senha em /etc/environment
+  sudo sed --in-place '/LINKER_DB_PASSWORD/d' $env_file # remove a linha
+  sudo -- bash -c "echo LINKER_DB_PASSWORD=\"$DB_PASS\" >> $env_file" # add denovo a linha
+  source $env_file
 }
 recreate_database(){
   echo "Recriando bando de dados $DB_NAME"
