@@ -945,6 +945,7 @@ help(){
   echo "  linker_service install_dev_dependents -force"
   echo
   echo "  linker_service reinstall_mariadb"
+  echo "  linker_service reinstall_mariadb -force"
   echo "  linker_service install_shell_server"
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
