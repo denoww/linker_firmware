@@ -82,24 +82,26 @@ last_version() {
 current_version() {
   echo $(sudo -- bash -c "cat $FIRM_DIR/current_version")
 }
-download_firmware() {
-  sudo mkdir -p $FIRM_DIR
-
+download_tar_and_unzip(){
   echo "Baixando zip"
+  sudo mkdir -p $FIRM_DIR
   sudo wget -O $FIRM_DIR/_linker.tar.xz https://raw.githubusercontent.com/denoww/linker_firmware/master/linker.tar.xz;
-  download_success=$?
-  if [[ $download_success -eq 0 ]]; then
-    sudo rm -f $FIRM_DIR/linker.tar.xz
-    sudo mv $FIRM_DIR/_linker.tar.xz $FIRM_DIR/linker.tar.xz
-
+  download_tar_and_unziped=$?
+  if [ $download_tar_and_unziped -eq 0 ]; then
     unzip_linker
-
-    # saveCurrentVersion
-    pull_images_docker
   else
     # erro ao baixar
     sudo rm -f $FIRM_DIR/_linker.tar.xz
     echo "Erro ao baixar _linker.tar.xz"
+  fi
+}
+download_firmware() {
+  download_tar_and_unzip
+  if [ $download_tar_and_unziped -eq 0 ]; then
+    sudo rm -f $FIRM_DIR/linker.tar.xz
+    sudo mv $FIRM_DIR/_linker.tar.xz $FIRM_DIR/linker.tar.xz
+    # saveCurrentVersion
+    pull_images_docker
   fi
 }
 unzip_linker(){
@@ -260,7 +262,7 @@ need_update() {
   fi
 }
 install_shell_server(){
-  check_firmware_downloaded
+  download_tar_and_unzip
   cd $FIRM_DIR
   sudo npm install express
   sudo npm install child_process
