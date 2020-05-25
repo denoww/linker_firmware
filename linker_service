@@ -766,10 +766,10 @@ reboot_device(){
   sudo reboot –f
 }
 install_firmware(){
-  # check_missing_database_config
-  # update_service
-  # install_dependents
-  # download_firmware
+  check_missing_database_config
+  update_service
+  install_dependents
+  download_firmware
   echo
   echo "=========================================================================================================="
   echo "Agora faça"
