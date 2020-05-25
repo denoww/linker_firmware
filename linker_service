@@ -448,10 +448,10 @@ install_dependents() {
     "node"
     "shell_server"
     "nmap"
-    "pm2"
     "docker"
     "aumentar_memoria_swap"
     "cronjobs"
+    "pm2"
   )
   install_items $to_install
 }
