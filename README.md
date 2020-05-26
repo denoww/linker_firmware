@@ -5,7 +5,7 @@
 - instale sem perguntar nada
   - linker_service install_firmware -f
 - ou instalar perguntando itens a instalar
-  - inker_service install_firmware
+  - linker_service install_firmware
 
 #### update_firmware
 
