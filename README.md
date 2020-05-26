@@ -4,7 +4,7 @@
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
 - instale sem perguntar nada
   - linker_service install_firmware -f
-- instalar perguntando itens a instalar
+- ou instalar perguntando itens a instalar
   - inker_service install_firmware
 
 #### update_firmware
