@@ -1,13 +1,11 @@
 #### install_firmware
 
-- pergunta o que quer instalar
-
+- baixe o linker_service
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
-  - linker_service install_firmware
-
-- instalar tudo sem perguntar
-
-  - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s install_firmware -f
+- instale sem perguntar nada
+  - linker_service install_firmware -f
+- instalar perguntando itens a instalar
+  - inker_service install_firmware
 
 #### update_firmware
 
