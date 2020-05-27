@@ -47,6 +47,7 @@ declare -a files_to_zip=(
 declare -a files_to_copy_from_dev_dir=(
   "docker-compose.yml"
   "Dockerfile"
+  "shell_server.js"
 )
 
 
@@ -139,8 +140,11 @@ stop(){
   stop_shell_server
   close_ports
 }
-start_shell_server(){
+start_shell_server_prod(){
   sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start $FIRM_DIR/shell_server.js --name shell_server"
+}
+start_shell_server_dev(){
+  sudo -- bash -c "export NODE_PATH=$(npm root --quiet -g); sudo pm2 start $(dev_dir)/shell_server.js --name shell_server"
 }
 stop_shell_server(){
   sudo pm2 delete shell_server
@@ -173,7 +177,7 @@ start_prod(){
   stop
   check_firmware_downloaded
   start_container_prod
-  start_shell_server
+  start_shell_server_prod
   help_start
   echo ==== Para ver os logs faça =======
   echo "   \$ linker_service logs"
@@ -182,7 +186,7 @@ start_dev(){
   stop
   check_firmware_downloaded
   start_container_dev
-  start_shell_server
+  start_shell_server_dev
   help_start
   logs_dev
 }
@@ -645,7 +649,7 @@ _ensure_dev_repo_updated(){
   echo "Garantindo repositorio $(dev_dir) atualizado..."
   git -C $(dev_dir) pull origin master
 }
-copy_dev_files_to_zip(){
+copy_dev_files_to_firmware(){
   # copy some files
   for item in "${files_to_copy_from_dev_dir[@]}"; do
     sudo rm -f $FIRM_DIR/$item
@@ -668,7 +672,7 @@ build(){
   _ensure_dev_repo_updated
   sudo docker build --tag $repo_docker_image $(dev_dir)
 
-  copy_dev_files_to_zip
+  copy_dev_files_to_firmware
 
   echo "installer finished!"
 
@@ -705,7 +709,7 @@ release(){
   # pushed=0
   if [[ $builded_and_pushed -eq 0 ]]; then
 
-    copy_dev_files_to_zip
+    copy_dev_files_to_firmware
 
     # incrementando versão
     old_version=$(last_version)
@@ -901,7 +905,8 @@ help(){
   echo
   echo "Shell server"
   echo "  linker_service install_shell_server"
-  echo "  linker_service start_shell_server"
+  echo "  linker_service start_shell_server_prod"
+  echo "  linker_service start_shell_server_dev"
   echo "  linker_service restart_shell_server"
   echo "  linker_service logs_shell_server"
 
@@ -987,8 +992,11 @@ logs_shell_server)
 install_shell_server)
   install_shell_server
   ;;
-start_shell_server)
-  start_shell_server
+start_shell_server_dev)
+  start_shell_server_dev
+  ;;
+start_shell_server_prod)
+  start_shell_server_prod
   ;;
 restart_shell_server)
   restart_shell_server

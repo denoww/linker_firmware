@@ -2,8 +2,114 @@
 var express = require('express');
 var app = express();
 
+// files
+var fs = require('fs')
+
 // shell
 var shell = require("child_process").exec
+
+// vars
+var firmDir = "/var/lib/linker_firmware";
+
+// code
+
+var processLogs = {}
+
+
+// /linker_service
+app.get('/linker_service', function (req, res) {
+
+  var maxLogsTime = 600000; // 10 minutos de logs no máximo
+
+  var backgroundCommands = /install_shell_server|logs|logs_shell_server|install_firmware|reset_data_prod|reset_data_dev|update_firmware|restart_prod|restart_dev|install_dev_dependents|install_dependents/
+
+  var params = getParams(req);
+  var cmd = '';
+  var resp = {}
+  var shortCmd = params.cmd;
+  var sendJsonResponse = function(resp) {
+    res.write("::::jsonResp::::"+JSON.stringify(resp));
+  };
+  var sendDataStream = function(data){
+    if(data){
+      if(res.___processLogs == processLogs[cmd]){
+        res.write(data);
+      }
+    }
+  };
+  var finishRequest = function(){
+    if(res.___scIsEnded) return;
+    res.___scIsEnded = true;
+    res.end()
+  };
+  if(!shortCmd){
+    resp.status = 'error';
+    resp.color = "red"
+    resp.msg = "Erro: envie cmd na url";
+    sendJsonResponse(resp);
+    finishRequest();
+  }
+  if(shortCmd){
+    cmd = "linker_service "+shortCmd;
+    resp.cmd = cmd;
+
+    // quando chegar uma nova request pra um comando idêntico vamos para de falar os logs do comando anterior
+    processLogs[cmd] = guid()
+    res.___processLogs = processLogs[cmd]
+
+
+    var alreadyResponded = false;
+    var inBackground = shortCmd.match(backgroundCommands);
+    if(inBackground){
+      resp.status = "running"
+      resp.color = "yellow"
+      resp.msg = "Executando "+cmd
+      sendJsonResponse(resp);
+      alreadyResponded = true;
+    }
+
+
+    // cmdWithLogs = cmd+" >> "+logFilePath(cmd)
+    // shell(cmdWithLogs, function(cmdError, cmdResp, stderr){
+
+
+    var proc = shell(cmd, function(cmdError, cmdResp, stderr){
+      if (cmdResp)   {
+        response = cmdResp.replace(/\n$/g, '');
+        resp.status = 'success';
+        resp.color = "green"
+        resp.msg = "Executado "+cmd+" - Resposta: "+response
+        resp.response = response;
+        // console.log(cmdResp);
+      }
+      if (cmdError)  {
+        resp.status = 'error';
+        resp.color = "red"
+        resp.msg = "Erro ao executar "+cmd
+        // console.log(cmdError);
+      }
+      // console.log(stderr);
+      // if (stderr) { console.log(stderr); }
+      if(!alreadyResponded){ sendJsonResponse(resp); }
+    });
+
+    proc.stdout.on('data', (data) => {
+      sendDataStream(data)
+    });
+
+    proc.stderr.on('data', (data) => {
+      sendDataStream(data)
+    });
+    proc.on('close', (code) => {
+      finishRequest()
+    });
+    setTimeout(function(){
+      // no maximo 10 minutos de logs e já fechamos a request
+      finishRequest();
+    }, maxLogsTime);
+
+  }
+});
 
 var getParams = function(req) {
   params = Object.assign( req.body || {}, req.query || {}, req.params || {} );
@@ -12,7 +118,13 @@ var getParams = function(req) {
   return params;
 };
 
+var guid = function(){
+  var s4 = function(){ return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) };
+  return [s4() + s4(), s4(), s4(), s4(), s4() + s4() + s4()].join('-')
+}
+
 app.all('*', function(req, res, next){
+  console.log("shell server localhost:3003");
   console.log(req.method+": "+req.url);
   console.log(getParams(req));
   next();
@@ -25,56 +137,22 @@ app.get('/', function (req, res) {
   res.send(html);
 });
 
-// /linker_service
-app.get('/linker_service', function (req, res) {
-  backgroundCommands = ['install_shell_server', 'install_firmware', 'reset_data_prod', 'reset_data_dev', 'update_firmware', 'restart_prod', 'restart_dev', 'install_dev_dependents', 'install_dependents']
-
-  params = getParams(req);
-  cmd = '';
-  resp = {}
-  shortCmd = params.cmd
-  if(shortCmd){
-    cmd = "linker_service "+shortCmd;
-    resp.cmd = cmd;
-
-    alreadyResponded = false;
-    if(backgroundCommands.includes(shortCmd)){
-      resp.status = "running"
-      resp.color = "yellow"
-      resp.msg = "Executando "+cmd
-      res.json(resp);
-      alreadyResponded = true;
-    }
-
-    // cmdWithLogs = cmd+" >> /var/lib/linker_firmware/xxxx.logs"
-    // shell(cmdWithLogs, function(cmdError, cmdResp, stderr){
-    shell(cmd, function(cmdError, cmdResp, stderr){
-      if (cmdResp)   {
-        response = cmdResp.replace(/\n$/g, '');
-        resp.status = 'success';
-        resp.color = "green"
-        resp.msg = "Executado "+cmd+" - Resposta: "+response
-        resp.response = response;
-        console.log(cmdResp);
-      }
-      if (cmdError)  {
-        resp.status = 'error';
-        resp.color = "red"
-        resp.msg = "Erro ao executar "+cmd
-        console.log(cmdError);
-      }
-      if (stderr) { console.log(stderr); }
-      if(!alreadyResponded){ res.json(resp); }
-
-    });
-  }else{
-    resp.status = 'error';
-    resp.color = "red"
-    resp.msg = "Erro: envie cmd na url";
-    res.json(resp);
-  }
-});
 
 app.listen(3003, function () {
   console.log('Shell Server on port 3003!');
 });
+
+// var logFilePath = function(cmd) {
+//   var folder = firmDir+"/logs";
+//   var logFileName;
+//   if(cmd.match(/linker_service/)){
+//     logFileName = cmd.split(' ')[1];
+//     folder = folder+'/linker_service'
+//   }else{
+//     logFileName = 'others';
+//   }
+
+//   fs.mkdirSync(folder, { recursive: true });
+
+//   return folder+'/'+logFileName+".logs";
+// };
