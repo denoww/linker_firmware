@@ -6,12 +6,22 @@ var app = express();
 var fs = require('fs')
 
 // shell
-var shell = require("child_process").exec
+// var shell = require("child_process").exec
+var shell = require("child_process").spawn
 
 // vars
 var firmDir = "/var/lib/linker_firmware";
 
 // code
+
+
+app.all('*', function(req, res, next){
+  console.log("shell server localhost:3003");
+  console.log(req.method+": "+req.url);
+  console.log(getParams(req));
+  next();
+
+})
 
 var processLogs = {}
 
@@ -27,16 +37,30 @@ app.get('/linker_service', function (req, res) {
   var cmd = '';
   var resp = {}
   var shortCmd = params.cmd;
+  var isLogs = shortCmd.match(/logs/);
   var sendJsonResponse = function(resp) {
     res.write("::::jsonResp::::"+JSON.stringify(resp));
   };
-  var sendDataStream = function(data){
+  var sendDataStream = function(data, proc){
+    if(proc.killed) return;
     if(data){
       if(res.___processLogs == processLogs[cmd]){
-        res.write(data);
+        if(!res.___scIsEnded){
+          res.write(data);
+        }
+      }else{
+        if(isLogs){
+          finishRequest();
+          killProc(proc);
+        }
       }
     }
   };
+  var killProc = function(proc){
+    if(proc && proc.stdin){
+      shell("sh",["-c","kill -INT -"+proc.pid]);
+    }
+  }
   var finishRequest = function(){
     if(res.___scIsEnded) return;
     res.___scIsEnded = true;
@@ -67,45 +91,48 @@ app.get('/linker_service', function (req, res) {
       sendJsonResponse(resp);
       alreadyResponded = true;
     }
+    var proc = shell(cmd, { detached: true, shell: true });
 
-
-    // cmdWithLogs = cmd+" >> "+logFilePath(cmd)
-    // shell(cmdWithLogs, function(cmdError, cmdResp, stderr){
-
-
-    var proc = shell(cmd, function(cmdError, cmdResp, stderr){
-      if (cmdResp)   {
-        response = cmdResp.replace(/\n$/g, '');
-        resp.status = 'success';
-        resp.color = "green"
-        resp.msg = "Executado "+cmd+" - Resposta: "+response
-        resp.response = response;
-        // console.log(cmdResp);
-      }
-      if (cmdError)  {
+    var mountAndSendJsonResponse = function(msg, isError){
+      if (isError)  {
         resp.status = 'error';
         resp.color = "red"
-        resp.msg = "Erro ao executar "+cmd
+        resp.msg = "Erro ao executar "+cmd;
         // console.log(cmdError);
+      }else{
+        msg = msg.toString();
+        resp.status = 'success';
+        resp.color = "green"
+        resp.msg = "Executado "+cmd+" - Resposta: "+msg;
+        resp.response = msg;
+        // console.log(cmdResp);
       }
-      // console.log(stderr);
-      // if (stderr) { console.log(stderr); }
-      if(!alreadyResponded){ sendJsonResponse(resp); }
-    });
+      sendJsonResponse(resp);
+    }
 
+    var lastMsg;
     proc.stdout.on('data', (data) => {
-      sendDataStream(data)
+      lastMsg = data;
+      sendDataStream(data, proc)
     });
 
     proc.stderr.on('data', (data) => {
-      sendDataStream(data)
+      sendDataStream(data, proc)
     });
+
     proc.on('close', (code) => {
+      console.log(cmd+' terminou exit code '+code);
+      isError = code != 0;
+      if(!alreadyResponded) mountAndSendJsonResponse(lastMsg, isError);
+      proc.exit
       finishRequest()
     });
     setTimeout(function(){
       // no maximo 10 minutos de logs e já fechamos a request
       finishRequest();
+      if(isLogs){
+        killProc(proc);
+      }
     }, maxLogsTime);
 
   }
@@ -122,14 +149,6 @@ var guid = function(){
   var s4 = function(){ return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1) };
   return [s4() + s4(), s4(), s4(), s4(), s4() + s4() + s4()].join('-')
 }
-
-app.all('*', function(req, res, next){
-  console.log("shell server localhost:3003");
-  console.log(req.method+": "+req.url);
-  console.log(getParams(req));
-  next();
-
-})
 
 // index
 app.get('/', function (req, res) {
