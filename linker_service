@@ -758,7 +758,7 @@ release(){
   fi
 }
 logs(){
-  sudo docker logs -f linker --tail 300
+  sudo docker logs -f linker --tail 100
 }
 logs_dev(){
   echo
