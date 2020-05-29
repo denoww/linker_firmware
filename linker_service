@@ -767,7 +767,7 @@ logs_dev(){
 }
 update_firmware(){
   need=$(need_update)
-  if $need == true; then
+  if [ $need == true ] || [ "$force" == true ]; then
     echo "Updating..."
     download_firmware
     restart_prod
@@ -932,6 +932,7 @@ help(){
   echo "  linker_service install_firmware"
   echo "  linker_service install_firmware -force"
   echo "  linker_service update_firmware"
+  echo "  linker_service update_firmware -force"
   echo "  linker_service update_service"
 
   echo
