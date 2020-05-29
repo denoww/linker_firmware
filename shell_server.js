@@ -14,13 +14,14 @@ var firmDir = "/var/lib/linker_firmware";
 
 // code
 
+var print = function(msg){
+  console.log(msg)
+}
 
 app.all('*', function(req, res, next){
-  console.log("shell server localhost:3003");
-  console.log(req.method+": "+req.url);
-  console.log(getParams(req));
+  print("shell server "+req.method+": http://localhost:3003"+req.url);
+  print(getParams(req));
   next();
-
 })
 
 var processLogs = {}
@@ -98,14 +99,14 @@ app.get('/linker_service', function (req, res) {
         resp.status = 'error';
         resp.color = "red"
         resp.msg = "Erro ao executar "+cmd;
-        // console.log(cmdError);
+        // print(cmdError);
       }else{
         msg = msg.toString();
         resp.status = 'success';
         resp.color = "green"
         resp.msg = "Executado "+cmd+" - Resposta: "+msg;
         resp.response = msg;
-        // console.log(cmdResp);
+        // print(cmdResp);
       }
       sendJsonResponse(resp);
     }
@@ -121,7 +122,7 @@ app.get('/linker_service', function (req, res) {
     });
 
     proc.on('close', (code) => {
-      console.log(cmd+' terminou exit code '+code);
+      // print(cmd+' terminou exit code '+code);
       isError = code != 0;
       if(!alreadyResponded) mountAndSendJsonResponse(lastMsg, isError);
       proc.exit
@@ -158,7 +159,7 @@ app.get('/', function (req, res) {
 
 
 app.listen(3003, function () {
-  console.log('Shell Server on port 3003!');
+  print('Shell Server on port 3003!');
 });
 
 // var logFilePath = function(cmd) {
