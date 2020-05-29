@@ -5,8 +5,13 @@ env_file=/etc/environment
 LINKER_DB_PASSWORD=
 source $env_file
 
-# crtontab file
+# logs
+FOLDER_LOGS="$FIRM_DIR/logs"
+
+# jobs vars
+folder_jobs_logs="$FOLDER_LOGS/jobs"
 cron_tab_linker_file="/etc/cron.d/linker"
+network_up_linker_file="/etc/network/if-up.d/linker"
 
 # database credentials
 DB_USER=root
@@ -20,7 +25,6 @@ repo_docker_image=denoww/linker
 OS_LIBS="/var/lib"
 FIRM_DIR="$OS_LIBS/linker_firmware"
 SERVICE_DIR="/usr/local/bin"
-FOLDER_LOGS="$FIRM_DIR/logs"
 dev_dir(){
   dev_dir_file=$OS_LIBS/SC_LINKER_DEV_DIR
   sudo touch $dev_dir_file
@@ -459,51 +463,80 @@ install_dependents() {
   )
   install_items $to_install
 }
-uninstall_cronjobs(){
+uninstall_jobs(){
   sudo rm -f $cron_tab_linker_file
+  sudo rm -f $network_up_linker_file
+}
+install_jobs(){
+  uninstall_jobs
+  install_cronjobs
+  install_network_up_jobs
 }
 install_cronjobs(){
   # user=${USER}
   user='root'
 
-  uninstall_cronjobs
   sudo touch $cron_tab_linker_file
-
-  folder_cron_logs="$FOLDER_LOGS/crontabs"
 
 
   local_linker_service=/usr/local/bin/linker_service
-  web_linker_service="wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
-  # web_linker_service="wget -O /dev/null https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
-  declare -a cmds=(
+  declare -a cron_cmds=(
+
 
     # criar pasta
-    "@reboot $user mkdir -p $folder_cron_logs"
+    "@reboot $user mkdir -p $folder_jobs_logs"
 
     # start_prod
-    "@reboot $user sleep 2 \&\& $local_linker_service start_prod \> $folder_cron_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
-
-    # update_service
-    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_cron_logs/update_service \2\>\&\1"
-
-    # update_firmware
-    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_cron_logs/update_firmware \2\>\&\1"
-
-    # install_cronjobs
-    "@reboot $user sleep 120 \&\& bash -c \'$web_linker_service \| bash -s install_cronjobs\' \> $folder_cron_logs/install_cronjobs \2\>\&\1"
+    "@reboot $user sleep 2 \&\& $local_linker_service start_prod \> $folder_jobs_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
 
     # reboot as 3 da manha
-    "\* 3 \* \* \* $user $local_linker_service reboot_device \> $folder_cron_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
+    "\* 3 \* \* \* $user $local_linker_service reboot_device \> $folder_jobs_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
 
   )
 
-  for cmd in "${cmds[@]}"; do
+  for cmd in "${cron_cmds[@]}"; do
     sudo -- bash -c "echo $cmd >> $cron_tab_linker_file"
   done
+
+
   sudo chown root:root $cron_tab_linker_file
 
   echo "Instalado crontabs jobs"
 }
+
+install_network_up_jobs(){
+  sudo touch $network_up_linker_file
+
+  web_linker_service="wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
+  declare -a net_cmds=(
+
+    # init
+    "\#\!\/bin\/sh"
+
+    # criar pasta
+    "mkdir -p $folder_jobs_logs"
+
+    # update_service
+    "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_jobs_logs/update_service"
+
+    # update_firmware
+    "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_jobs_logs/update_firmware"
+
+    # install_jobs
+    "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s install_jobs\' \> $folder_jobs_logs/install_jobs"
+
+
+  )
+
+  for cmd in "${net_cmds[@]}"; do
+    sudo -- bash -c "echo $cmd >> $network_up_linker_file"
+  done
+
+  sudo chmod +x $network_up_linker_file
+
+  echo "Instalado network up jobs"
+}
+
 uninstall_dependents(){
   ######### DANGER ###############################################
   # criar aqui no shellscript
@@ -956,7 +989,7 @@ help(){
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
   echo "  linker_service reboot_device"
-  echo "  linker_service install_cronjobs"
+  echo "  linker_service install_jobs"
 
 
 
@@ -1063,11 +1096,11 @@ set_date)
   sudo date --set $2
   echo $2
   ;;
-uninstall_cronjobs)
-  uninstall_cronjobs
+uninstall_jobs)
+  uninstall_jobs
   ;;
-install_cronjobs)
-  install_cronjobs
+install_jobs)
+  install_jobs
   ;;
 install_linker_dev)
   install_linker_dev
