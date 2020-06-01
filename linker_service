@@ -479,6 +479,7 @@ install_cronjobs(){
 
 
   local_linker_service=/usr/local/bin/linker_service
+  web_linker_service="wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
   declare -a cron_cmds=(
 
     # criar pasta
