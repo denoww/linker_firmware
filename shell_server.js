@@ -42,11 +42,21 @@ app.get('/linker_service', function (req, res) {
   var sendJsonResponse = function(resp) {
     res.write("::::jsonResp::::"+JSON.stringify(resp));
   };
+  var lastMsg;
+  var firstMsg = false;
+
+
   var sendDataStream = function(data, proc){
+    lastMsg = data;
+    if(!firstMsg){
+      firstMsg = true
+      data = "::::firstMsg::::"+data
+    }
     if(proc.killed) return;
     if(data){
       if(res.___processLogs == processLogs[cmd]){
         if(!res.___scIsEnded){
+          data = data.toString().replace(/(\x1b\[38;5;[0-9]+m)|(\x1b\[0m)/g, '')
           res.write(data);
         }
       }else{
@@ -111,9 +121,7 @@ app.get('/linker_service', function (req, res) {
       sendJsonResponse(resp);
     }
 
-    var lastMsg;
     proc.stdout.on('data', (data) => {
-      lastMsg = data;
       sendDataStream(data, proc)
     });
 
