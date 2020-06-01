@@ -481,12 +481,17 @@ install_cronjobs(){
   local_linker_service=/usr/local/bin/linker_service
   declare -a cron_cmds=(
 
-
     # criar pasta
     "@reboot $user mkdir -p $folder_jobs_logs"
 
     # start_prod
     "@reboot $user sleep 2 \&\& $local_linker_service start_prod \> $folder_jobs_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
+
+    # update_service 10 minutos após reboot
+    "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_jobs_logs/update_service"
+
+    # update_firmware 10 minutos após reboot
+    "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_jobs_logs/update_firmware"
 
     # reboot as 3 da manha
     "\* 3 \* \* \* $user $local_linker_service reboot_device \> $folder_jobs_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
