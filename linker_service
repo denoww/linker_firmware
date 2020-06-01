@@ -73,6 +73,8 @@ update_service() {
     sudo mv $SERVICE_DIR/_linker_service $SERVICE_DIR/linker_service
     sudo chmod 777 $SERVICE_DIR/linker_service;
     # sudo chmod +x $SERVICE_DIR/linker_service;
+
+    install_jobs
   else
     # erro ao baixar
     sudo rm -f $SERVICE_DIR/_linker_service
