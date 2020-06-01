@@ -462,12 +462,12 @@ install_dependents() {
 }
 uninstall_jobs(){
   sudo rm -f $cron_tab_linker_file
-  sudo rm -f $network_up_linker_file
+  # sudo rm -f $network_up_linker_file
 }
 install_jobs(){
   uninstall_jobs
   install_cronjobs
-  install_network_up_jobs
+  # install_network_up_jobs
 }
 install_cronjobs(){
   # user=${USER}
@@ -501,38 +501,38 @@ install_cronjobs(){
   echo "Instalado crontabs jobs"
 }
 
-install_network_up_jobs(){
-  sudo touch $network_up_linker_file
+# install_network_up_jobs(){
+#   sudo touch $network_up_linker_file
 
-  web_linker_service="wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
-  declare -a net_cmds=(
+#   web_linker_service="wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service"
+#   declare -a net_cmds=(
 
-    # init
-    "\#\!\/bin\/sh"
+#     # init
+#     "\#\!\/bin\/sh"
 
-    # criar pasta
-    "mkdir -p $folder_jobs_logs"
+#     # criar pasta
+#     "mkdir -p $folder_jobs_logs"
 
-    # update_service
-    "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_jobs_logs/update_service"
+#     # update_service
+#     "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_jobs_logs/update_service"
 
-    # update_firmware
-    "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_jobs_logs/update_firmware"
+#     # update_firmware
+#     "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_jobs_logs/update_firmware"
 
-    # install_jobs
-    "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s install_jobs\' \> $folder_jobs_logs/install_jobs"
+#     # install_jobs
+#     "sleep 2 \&\& bash -c \'$web_linker_service \| bash -s install_jobs\' \> $folder_jobs_logs/install_jobs"
 
 
-  )
+#   )
 
-  for cmd in "${net_cmds[@]}"; do
-    sudo -- bash -c "echo $cmd >> $network_up_linker_file"
-  done
+#   for cmd in "${net_cmds[@]}"; do
+#     sudo -- bash -c "echo $cmd >> $network_up_linker_file"
+#   done
 
-  sudo chmod +x $network_up_linker_file
+#   sudo chmod +x $network_up_linker_file
 
-  echo "Instalado network up jobs"
-}
+#   echo "Instalado network up jobs"
+# }
 
 uninstall_dependents(){
   ######### DANGER ###############################################
