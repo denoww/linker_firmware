@@ -73,8 +73,6 @@ update_service() {
     sudo mv $SERVICE_DIR/_linker_service $SERVICE_DIR/linker_service
     sudo chmod 777 $SERVICE_DIR/linker_service;
     # sudo chmod +x $SERVICE_DIR/linker_service;
-
-    install_jobs
   else
     # erro ao baixar
     sudo rm -f $SERVICE_DIR/_linker_service
@@ -494,6 +492,9 @@ install_cronjobs(){
 
     # update_firmware 10 minutos após reboot
     "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_jobs_logs/update_firmware \2\>\&\1"
+
+    # install_jobs 10 minutos após reboot
+    "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s install_jobs\' \> $folder_jobs_logs/install_jobs \2\>\&\1"
 
     # reboot as 3 da manha
     "\* 3 \* \* \* $user $local_linker_service reboot_device \> $folder_jobs_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
