@@ -91,6 +91,7 @@ download_tar_and_unzip(){
   sudo wget -O $FIRM_DIR/_linker.tar.xz https://raw.githubusercontent.com/denoww/linker_firmware/master/linker.tar.xz;
   download_tar_and_unziped=$?
   if [ $download_tar_and_unziped -eq 0 ]; then
+    sleep 2
     unzip_linker
   else
     # erro ao baixar
