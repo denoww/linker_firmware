@@ -91,7 +91,11 @@ download_tar_and_unzip(){
   sudo wget -O $FIRM_DIR/_linker.tar.xz https://raw.githubusercontent.com/denoww/linker_firmware/master/linker.tar.xz;
   download_tar_and_unziped=$?
   if [ $download_tar_and_unziped -eq 0 ]; then
-    sleep 2
+    sleep 1
+    sudo rm -f $FIRM_DIR/linker.tar.xz
+    sleep 1
+    sudo mv $FIRM_DIR/_linker.tar.xz $FIRM_DIR/linker.tar.xz
+    sleep 1
     unzip_linker
   else
     # erro ao baixar
@@ -102,9 +106,6 @@ download_tar_and_unzip(){
 download_firmware() {
   download_tar_and_unzip
   if [ $download_tar_and_unziped -eq 0 ]; then
-    sudo rm -f $FIRM_DIR/linker.tar.xz
-    sudo mv $FIRM_DIR/_linker.tar.xz $FIRM_DIR/linker.tar.xz
-    # saveCurrentVersion
     pull_images_docker
   fi
 }
