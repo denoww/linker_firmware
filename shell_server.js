@@ -30,6 +30,7 @@ var processLogs = {}
 // /linker_service
 app.get('/linker_service', function (req, res) {
 
+
   var maxLogsTime = 600000; // 10 minutos de logs no máximo
 
   var backgroundCommands = /install_shell_server|logs|logs_shell_server|install_firmware|reset_data_prod|reset_data_dev|update_firmware|restart_prod|restart_dev|install_dev_dependents|install_dependents/
