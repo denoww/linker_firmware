@@ -242,6 +242,7 @@ pull_images_docker(){
   old_images=$(docker images -q $repo_docker_image --filter "dangling=true" | uniq)
   if ! [ -z "$old_images" ]; then
     # apaga imagem antiga
+    stop_linker
     sudo docker rmi --force $old_images
   fi
 }
