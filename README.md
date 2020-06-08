@@ -15,11 +15,11 @@
 
 - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
 
-##### start_prod
+#### start_prod
 
 - linker_service start_prod
 
-##### logs
+#### logs
 
 - linker_service logs
 
