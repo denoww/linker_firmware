@@ -859,7 +859,7 @@ install_firmware(){
   echo
   echo "=========================================================================================================="
   echo "Teamviewer - Instale agora"
-  echo "  https://www.teamviewer.com/pt-br/download/linux/"
+  echo "  https://www.teamviewer.com/pt-br/download/raspberry-pi/"
   echo "    Antes de definir a senha, pergunte para um desenvolvedor qual a senha"
   echo
 }
