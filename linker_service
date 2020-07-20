@@ -506,6 +506,7 @@ install_cronjobs(){
   # user=${USER}
   user='root'
 
+  sudo rm -f $cron_tab_linker_file
   sudo touch $cron_tab_linker_file
 
 
