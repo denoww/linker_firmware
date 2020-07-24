@@ -843,6 +843,10 @@ update_firmware(){
     echo "Já está na última versão"
   fi
 }
+shutdown_device(){
+  echo "Desligando device..."
+  sudo shutdown -h now
+}
 reboot_device(){
   echo "Reinciando device..."
   sudo reboot –f
@@ -1024,6 +1028,7 @@ help(){
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
   echo "  linker_service reboot_device"
+  echo "  linker_service shutdown_device"
   echo "  linker_service install_jobs"
 
 
@@ -1163,6 +1168,9 @@ install_dependents)
   ;;
 reboot_device)
   reboot_device
+  ;;
+shutdown_device)
+  shutdown_device
   ;;
 config_git_user)
   config_git_user
