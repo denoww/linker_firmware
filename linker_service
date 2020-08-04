@@ -283,7 +283,7 @@ install_compilador_multi_arquitetura(){
   echo "  Instale buildx"
   echo "    mas antes veja sua versão do docker para seguir o tutorial correto com $ docker -v "
   echo "    faça com sudo su ou tente sem mesmo sudo su os passos abaixo"
-  echo "      https://github.com/docker/buildx/blob/master/README.md#installing"
+  echo "      https://github.com/docker/buildx/blob/master/README.md#building"
   echo "============================================================================================="
   echo "  Instale o emulador QEMU (compila em outras arquiteturas: arm e amd64)"
   echo "    Para instalar"
