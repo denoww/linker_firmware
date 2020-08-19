@@ -279,6 +279,10 @@ install_shell_server(){
   sudo npm link child_process
 }
 install_compilador_multi_arquitetura(){
+
+  echo "============================================================================================="
+  echo "  Peça permissão de colaborador no repo"
+  echo "    https://github.com/denoww/linker_firmware "
   echo "============================================================================================="
   echo "  Instale buildx"
   echo "    mas antes veja sua versão do docker para seguir o tutorial correto com $ docker -v "
