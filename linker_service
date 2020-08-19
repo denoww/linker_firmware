@@ -281,8 +281,9 @@ install_shell_server(){
 install_compilador_multi_arquitetura(){
 
   echo "============================================================================================="
-  echo "  Peça permissão de colaborador no repo"
+  echo "  Peça permissão de colaborador nos repositórios"
   echo "    https://github.com/denoww/linker_firmware "
+  echo "    https://hub.docker.com/repository/docker/denoww/linker "
   echo "============================================================================================="
   echo "  Instale buildx"
   echo "    mas antes veja sua versão do docker para seguir o tutorial correto com $ docker -v "
