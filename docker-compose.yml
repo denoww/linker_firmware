@@ -10,8 +10,8 @@ services:
     volumes:
 #      - .:/src/ # deve ficar ligado em builds de docker em development
       - linker_data:/linker_data # fica guardando sqlite e config.json
-    ports:
-      - "3002:3002"
+    # ports:
+      # - "3002:3002"
     env_file:
       /etc/environment
     # environment:
