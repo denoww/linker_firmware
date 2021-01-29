@@ -699,7 +699,7 @@ git_clone_linker_firmware() {
   sudo rm -rf $FIRM_DIR
   # create_dir_firmware
   echo "Clonning repo to ${FIRM_DIR}..."
-  git clone git@github.com:denoww/linker_firmware.git $HOME/linker_firmware
+  git -C $HOME clone git@github.com:denoww/linker_firmware.git
   sudo mv $HOME/linker_firmware $OS_LIBS
 }
 _ensure_firm_repo_updated() {
