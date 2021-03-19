@@ -30,3 +30,8 @@
 #### reset_data (caso não saibam a senha de /config)
 
 - linker_service reset_data
+
+
+### Observações
+
+/var/lib/linker_firmware é onde fica instalado o firmware
