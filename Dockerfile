@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
   # openssh-client
   # nmap
 
+RUN npm install --global coffee-script
+
 # instalar docker
 # RUN curl -sSL https://get.docker.com/ | sh
 
