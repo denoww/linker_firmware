@@ -5,7 +5,13 @@ MAINTAINER rodrigo@seucondominio.com.br
 
 WORKDIR /src
 COPY package*.json ./
+
+# To handle 'not get uid/gid'
+RUN npm config set unsafe-perm true
+
 RUN npm install --quiet
+
+RUN npm install --global coffee-script
 
 RUN apt-get update && apt-get install -y \
   nmap
@@ -13,8 +19,6 @@ RUN apt-get update && apt-get install -y \
   # curl
   # openssh-client
   # nmap
-
-RUN npm install --global coffee-script
 
 # instalar docker
 # RUN curl -sSL https://get.docker.com/ | sh
