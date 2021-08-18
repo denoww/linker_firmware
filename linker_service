@@ -427,8 +427,10 @@ install_docker(){
 
 }
 install_pm2(){
-  # pm2
-  wget -qO- https://getpm2.com/install.sh | bash;
+  # install pm2
+  # wget -qO- https://getpm2.com/install.sh | bash;
+  sudo npm install pm2 -g
+  
   # log rotate
   sudo pm2 install pm2-logrotate;
   sudo pm2 set pm2-logrotate:max_size 1G;
