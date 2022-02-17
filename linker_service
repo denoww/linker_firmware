@@ -413,7 +413,8 @@ db_console(){
 
 
 install_node(){
-  curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+  # curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+  sudo curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo bash -
   sudo apt-get install -y nodejs
 }
 install_docker(){
