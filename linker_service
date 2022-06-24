@@ -211,7 +211,7 @@ build_and_push_docker_images(){
 
   docker_hub_login
 
-  DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest & builded_and_pushed=0 || builded_and_pushed=1
+  DOCKER_BUILD_KIT=1 DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --platform linux/arm64,linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest & builded_and_pushed=0 || builded_and_pushed=1
 
 
   # faz o cache
