@@ -53,7 +53,7 @@ comentar env_file e descomentar abaixo informando a senha do postgres que esta e
 
 ```
 environment:
-      - LINKER_DB_PASSWORD=L3NdK2vOc4v3JyVAQtYdrZYDRcSXpqlN
+      - LINKER_DB_PASSWORD=xxxxxxxxxxxxxxxxxxxx
 ```
 
 
@@ -89,3 +89,11 @@ Run sudo apt-get -f install
 Run sudo apt-get install libxtst6:armhf
 Run sudo teamviewer --daemon enable
 ```
+#### desligar GUI - Orange PI
+
+SEM GUI sempre que reiniciar
+```sudo systemctl set-default multi-user.target```
+abrir GUI uma vez
+```startx```
+COM GUI sempre que reiniciar
+```sudo systemctl set-default graphical.target```
