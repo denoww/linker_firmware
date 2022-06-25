@@ -106,3 +106,7 @@ abrir GUI uma vez
 COM GUI sempre que reiniciar
 
 ```sudo systemctl set-default graphical.target```
+
+### Venda de CASES para SBC (single board computer)
+
+https://kksb-cases.com
