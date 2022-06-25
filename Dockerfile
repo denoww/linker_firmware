@@ -1,4 +1,4 @@
-FROM node:onbuild
+FROM node:latest
 MAINTAINER rodrigo@seucondominio.com.br
 # WORKDIR /usr/app
 # VOLUME /workdir1
@@ -13,8 +13,10 @@ RUN npm install --quiet
 
 RUN npm install --global coffee-script
 
-RUN apt-get update && apt-get install -y \
-  nmap
+# RUN echo "deb http://ftp.debian.org/debian jessie main" > /etc/apt/sources.list
+RUN apt-get upgrade
+RUN apt-get update
+RUN apt-get install -y nmap
   # docker.io |
   # curl
   # openssh-client
