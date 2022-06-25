@@ -293,6 +293,8 @@ install_compilador_multi_arquitetura(){
   echo "============================================================================================="
   echo "  Instale o emulador QEMU (compila em outras arquiteturas: arm e amd64)"
   echo "    Para instalar"
+  echo "      $ docker run --rm --privileged multiarch/qemu-user-static --reset -p yes"
+  echo "      ou"
   echo "      $ docker run --privileged --rm docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64"
   echo "============================================================================================="
   echo "  Faça release"
