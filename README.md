@@ -133,6 +133,7 @@ close_ports(){
   done
 }
 stop_linker(){
+  cd $FIRM_DIR
   sudo docker stop linker
   sudo docker rm linker
 }
@@ -258,6 +259,7 @@ pull_images_docker(){
   fi
 }
 start_container_prod(){
+  cd $FIRM_DIR
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
 }
 start_container_dev(){
