@@ -39,7 +39,7 @@
 
 ### Orange PI
 
-#### postgres - Orange PI
+#### postgres senha - Orange PI
 
 Pegar a senha do postgres com
 
@@ -56,6 +56,23 @@ environment:
       - LINKER_DB_PASSWORD=L3NdK2vOc4v3JyVAQtYdrZYDRcSXpqlN
 ```
 
+
+#### postgres permitir conexoes - Orange PI
+
+Edite pg_hba.conf
+
+```$sudo nano  /etc/postgresql/11/main/pg_hba.conf```
+
+Va ate o final e deixe mais ou menos assim
+
+```
+local   postgres        all                                   peer
+host    all             all             0.0.0.0/0             trust
+host    all             all             ::/0                  trust
+```
+Reinicie o postgres
+
+```$ systemctl restart postgresql.service; systemctl status postgresql@11-main.service```
 
 #### teclado - Orange PI
 
