@@ -93,7 +93,9 @@ Run sudo teamviewer --daemon enable
 
 SEM GUI sempre que reiniciar
 ```sudo systemctl set-default multi-user.target```
+
 abrir GUI uma vez
 ```startx```
+
 COM GUI sempre que reiniciar
 ```sudo systemctl set-default graphical.target```
