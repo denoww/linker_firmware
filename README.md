@@ -95,17 +95,13 @@ Run sudo teamviewer --daemon enable
 
 SEM GUI sempre que reiniciar
 
-```sudo systemctl set-default multi-user.target```
-
-
-abrir GUI uma vez
-
-```startx```
-
+```sudo systemctl set-default multi-user.target
+sudo reboot```
 
 COM GUI sempre que reiniciar
 
-```sudo systemctl set-default graphical.target```
+```sudo systemctl set-default graphical.target
+sudo reboot```
 
 ### Venda de CASES para SBC (single board computer)
 
