@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:12.22.12
 MAINTAINER rodrigo@seucondominio.com.br
 # WORKDIR /usr/app
 # VOLUME /workdir1
