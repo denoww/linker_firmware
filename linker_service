@@ -133,12 +133,12 @@ close_ports(){
   done
 }
 stop_linker(){
+  cd $FIRM_DIR
   sudo docker stop linker
   sudo docker rm linker
 }
 stop(){
   cd $FIRM_DIR
-
   stop_linker
   stop_shell_server
   close_ports
@@ -156,6 +156,7 @@ restart_shell_server(){
   sudo pm2 restart shell_server
 }
 restart_prod(){
+  cd $FIRM_DIR
   stop_linker
   start_container_prod
   restart_shell_server
@@ -176,6 +177,16 @@ check_firmware_downloaded(){
     fi
   done
 }
+set_config(){
+  cod=$1
+  curl -d "codigo_equipamento=$cod&action=saveConfigFile&authToken=adminTokenLinker" -X POST http://localhost:3002/config
+  get_config
+}
+
+get_config(){
+  curl -d "authToken=adminTokenLinker&network=true" -X GET http://localhost:3002/config.json
+}
+
 start_prod(){
   stop
   check_firmware_downloaded
@@ -248,6 +259,7 @@ pull_images_docker(){
   fi
 }
 start_container_prod(){
+  cd $FIRM_DIR
   sudo docker-compose -f $FIRM_DIR/docker-compose.yml up --force-recreate -d
 }
 start_container_dev(){
@@ -972,7 +984,12 @@ config_git_user(){
 }
 
 help(){
-  echo "Production Docker"
+  echo "Config "
+  echo "  linker_service set_config COD_NUMERO_EQUIPAMENTO"
+  echo "  linker_service get_config"
+  echo
+
+  echo "Start Servers Production Docker"
   echo "  linker_service start_prod"
   echo "  linker_service restart_prod"
   echo "  linker_service logs"
@@ -980,17 +997,12 @@ help(){
   echo "  linker_service build_prod_and_start"
 
   echo
-  echo "Deploy"
-  echo "  linker_service release"
-  # echo "  linker_service build_prod_and_release"
-
-  echo
-  echo "Development Docker"
-  echo "  linker_service build_dev_and_start"
-  echo "  linker_service start_dev"
-  echo "  linker_service restart_dev"
-  echo "  linker_service stop"
-
+  echo "Install PROD Enviroment"
+  echo "  linker_service install_firmware"
+  echo "  linker_service install_firmware -force"
+  echo "  linker_service update_firmware"
+  echo "  linker_service update_firmware -force"
+  echo "  linker_service update_service"
 
   echo
   echo "Shell server"
@@ -1001,32 +1013,7 @@ help(){
   echo "  linker_service logs_shell_server"
 
   echo
-  echo "Esqueceu senha"
-  echo "  linker_service reset_data"
-  echo "  linker_service reset_data_prod"
-  echo "  linker_service reset_data_dev"
-
-  echo
-  echo "Setar data hora"
-  echo "  linker_service set_timezone America/Sao_Paulo"
-  echo "  linker_service set_date"
-
-  echo
-  echo "Versao"
-  echo "  linker_service current_version"
-  echo "  linker_service last_version"
-  echo "  linker_service need_update"
-
-  echo
-  echo "PROD Enviroment"
-  echo "  linker_service install_firmware"
-  echo "  linker_service install_firmware -force"
-  echo "  linker_service update_firmware"
-  echo "  linker_service update_firmware -force"
-  echo "  linker_service update_service"
-
-  echo
-  echo "DEV Enviroment"
+  echo "Install DEV Enviroment"
   echo "  linker_service install_linker_dev"
   echo "  linker_service git_clone_linker_firmware"
   echo "  linker_service config_git_user"
@@ -1048,6 +1035,36 @@ help(){
   echo "  linker_service reboot_device"
   echo "  linker_service shutdown_device"
   echo "  linker_service install_jobs"
+
+
+  echo
+  echo "Deploy"
+  echo "  linker_service release"
+  # echo "  linker_service build_prod_and_release"
+
+  echo
+  echo "Start Servers Development Docker"
+  echo "  linker_service build_dev_and_start"
+  echo "  linker_service start_dev"
+  echo "  linker_service restart_dev"
+  echo "  linker_service stop"
+
+  echo
+  echo "Esqueceu senha"
+  echo "  linker_service reset_data"
+  echo "  linker_service reset_data_prod"
+  echo "  linker_service reset_data_dev"
+
+  echo
+  echo "Setar data hora"
+  echo "  linker_service set_timezone America/Sao_Paulo"
+  echo "  linker_service set_date"
+
+  echo
+  echo "Versao"
+  echo "  linker_service current_version"
+  echo "  linker_service last_version"
+  echo "  linker_service need_update"
 
 
 
@@ -1192,6 +1209,12 @@ shutdown_device)
   ;;
 config_git_user)
   config_git_user
+  ;;
+set_config)
+  set_config $2
+  ;;
+get_config)
+  get_config
   ;;
 get_date)
   sudo date
