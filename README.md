@@ -91,17 +91,22 @@ Run sudo apt-get -f install
 Run sudo apt-get install libxtst6:armhf
 Run sudo teamviewer --daemon enable
 ```
-#### desligar GUI - Orange PI
+
+#### ligar/desligar GUI - deixar o sistema mais leve
 
 SEM GUI sempre que reiniciar
 
-```sudo systemctl set-default multi-user.target
-sudo reboot```
+```
+sudo systemctl set-default multi-user.target
+sudo reboot
+```
 
 COM GUI sempre que reiniciar
 
-```sudo systemctl set-default graphical.target
-sudo reboot```
+```
+sudo systemctl set-default graphical.target
+sudo reboot
+```
 
 ### Venda de CASES para SBC (single board computer)
 
