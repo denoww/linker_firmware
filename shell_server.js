@@ -1,4 +1,6 @@
 // express
+console.log("=====================================")
+console.log("SHELL SERVER iniciando...")
 var express = require('express');
 var app = express();
 
@@ -168,6 +170,7 @@ app.get('/', function (req, res) {
 
 app.listen(3003, function () {
   print('Shell Server on port 3003!');
+  console.log("=====================================")
 });
 
 // var logFilePath = function(cmd) {
