@@ -3,7 +3,7 @@
 - baixe o linker_service
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
 - instale sem perguntar nada
-  - linker_service install_firmware -fSEM GUI sempre que reiniciar sudo systemctl set-default multi-user.target
+  - linker_service install_firmware -f
 
 
 - ou instalar perguntando itens a instalar
