@@ -365,6 +365,7 @@ uninstall_postgres(){
 }
 config_postgres(){
   echo "CREATE ROLE $DB_USER LOGIN ENCRYPTED PASSWORD '$DB_PASS'" | sudo -u postgres psql
+  echo "ALTER ROLE $DB_USER lOGIN ENCRYPTED PASSWORD '$DB_PASS'" | sudo -u postgres psql
   echo "alter role $DB_USER with superuser" | sudo -u postgres psql
   sudo createdb $DB_NAME --owner $DB_USER -U $DB_USER
   sudo service postgresql reload
