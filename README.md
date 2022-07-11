@@ -84,12 +84,12 @@ teclado portrugues -> menu -> settings -> layout -> keyboard layout -> portugues
 
 ```
 Installed the armhf deb from here.
-Run sudo dpkg --add-architecture armhf
-Run sudo apt-get update
-Run sudo apt-get upgrade
-Run sudo apt-get -f install
-Run sudo apt-get install libxtst6:armhf
-Run sudo teamviewer --daemon enable
+sudo dpkg --add-architecture armhf
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get -f install
+sudo apt-get install libxtst6:armhf
+sudo teamviewer --daemon enable
 ```
 
 #### ligar/desligar GUI - deixar o sistema mais leve
