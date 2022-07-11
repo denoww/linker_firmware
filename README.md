@@ -91,6 +91,15 @@ sudo apt-get -f install
 sudo apt-get install libxtst6:armhf
 sudo teamviewer --daemon enable
 ```
+#### login teamviwer: nao pede senha de admin - resolva assim para pedir
+
+```
+stop current teamviewer
+sudo /opt/teamviewer/tv_bin/TeamViewer --allowRoot
+then grant access as usual
+stop root teamviewer
+start teamviewer with your usual account , access is still granted !
+```
 
 #### ligar/desligar GUI - deixar o sistema mais leve
 
