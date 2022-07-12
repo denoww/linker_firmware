@@ -56,14 +56,17 @@ declare -a files_to_copy_from_dev_dir=(
 
 
 architecture=$(uname -m)
-if [[ $architecture =~ 64 ]]; then
-  # x86_64
-  raspberry=false
+raspberry=false
+aarch64=false
+x86_64=false
+if [[ $architecture =~ aarch64 ]]; then
+  aarch64=true
+elif [[ $architecture =~ x86_64 ]]; then
+  x86_64=true
 elif [[ $architecture =~ armv ]]; then
   # armv7 - raspberry
   raspberry=true
 fi
-
 
 # functions
 update_service() {
@@ -434,15 +437,26 @@ db_console(){
 install_node(){
   curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
   sudo apt-get install -y nodejs
+
+  if [ $aarch64 == true ]; then
+    sudo apt install -y npm
+  fi
+
 }
 install_docker(){
-  # docker
-  wget -O - https://get.docker.com/ | bash
+  if [ $aarch64 == true ]; then
+    sudo apt install -y docker.io
+    sudo apt install -y docker-compose
+  else
 
-  # docker-compose
-  sudo apt-get install -y libffi-dev python3-pip
-  sudo pip3 install docker-compose
-  # sudo pip3 install docker-compose==1.25.0
+    # docker
+    wget -O - https://get.docker.com/ | bash
+
+    # docker-compose
+    sudo apt-get install -y libffi-dev python3-pip
+    sudo pip3 install docker-compose
+    # sudo pip3 install docker-compose==1.25.0
+  fi
 
 }
 install_pm2(){
