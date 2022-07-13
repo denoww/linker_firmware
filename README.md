@@ -94,6 +94,8 @@ sudo teamviewer --daemon enable
 #### login teamviwer: nao pede senha de admin - resolva assim para pedir
 
 ```
+sudo teamviewer setup
+========== OU =============
 stop current teamviewer
 sudo /opt/teamviewer/tv_bin/TeamViewer --allowRoot
 then grant access as usual
