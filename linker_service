@@ -492,6 +492,9 @@ install_dev_npm_packages(){
   sudo npm i coffee-script -g
   sudo npm i node-inspect -g
 }
+config_wifi(){
+ sudo nmtui
+}
 install_teamviewer(){
   if [ $aarch64 == true ]; then
     sudo dpkg --add-architecture armhf
@@ -1201,6 +1204,9 @@ git_clone_linker_firmware)
   ;;
 install_compilador_multi_arquitetura)
   install_compilador_multi_arquitetura
+  ;;
+config_wifi)
+  config_wifi
   ;;
 install_teamviewer)
   install_teamviewer
