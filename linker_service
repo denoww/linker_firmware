@@ -514,9 +514,10 @@ install_teamviewer(){
   sudo wget $TEAMVURL -O /tmp/teamviewer.deb
   sudo dpkg -i /tmp/teamviewer.deb
   sudo rm -rf /tmp/teamviewer.deb
-  if [ $x86_64 == true ]; then
-    sudo apt-get -f -y install
-  fi
+  sudo apt-get -f -y install
+  #if [ $x86_64 == true ]; then
+    #sudo apt-get -f -y install
+  #fi
   sudo teamviewer setup
 }
 install_dev_dependents(){
