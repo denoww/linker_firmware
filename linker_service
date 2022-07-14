@@ -500,7 +500,7 @@ install_teamviewer(){
     sudo apt-get -f -y install
   fi
 
-  
+
   if [ $i386 == true ]; then
     TEAMVURL=https://download.teamviewer.com/download/linux/teamviewer-host_i386.deb
   fi
@@ -514,6 +514,9 @@ install_teamviewer(){
   sudo wget $TEAMVURL -O /tmp/teamviewer.deb
   sudo dpkg -i /tmp/teamviewer.deb
   sudo rm -rf /tmp/teamviewer.deb
+  if [ $x86_64 == true ]; then
+    sudo apt-get -f -y install
+  fi
   sudo teamviewer setup
 }
 install_dev_dependents(){
