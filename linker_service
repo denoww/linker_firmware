@@ -1007,6 +1007,11 @@ help(){
   echo "  linker_service set_config COD_NUMERO_EQUIPAMENTO"
   echo "  linker_service get_config"
   echo
+  
+  echo "Teamviewer e Wifi "
+  echo "  linker_service install_teamviewer"
+  echo "  linker_service config_wifi"
+  echo
 
   echo "Start Servers Production Docker"
   echo "  linker_service start_prod"
