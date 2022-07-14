@@ -1,6 +1,8 @@
 #### install_firmware
 
 - baixe o linker_service
+  - wget -O - www.seucondominio.com.br/linker_service | bash -s update_service
+  - OU
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
 - instale sem perguntar nada
   - linker_service install_firmware -f
