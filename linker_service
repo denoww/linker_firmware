@@ -59,8 +59,11 @@ architecture=$(uname -m)
 raspberry=false
 aarch64=false
 x86_64=false
+i386=false
 if [[ $architecture =~ aarch64 ]]; then
   aarch64=true
+elif [[ $architecture =~ i386 ]]; then
+  i386=true
 elif [[ $architecture =~ x86_64 ]]; then
   x86_64=true
 elif [[ $architecture =~ armv ]]; then
@@ -485,9 +488,33 @@ ask_install(){
   echo $install
 }
 install_dev_npm_packages(){
-  sudo npm i nodemon -g
+  sudo npm i nodemon -gi386
   sudo npm i coffee-script -g
   sudo npm i node-inspect -g
+}
+install_teamviewer(){
+  if [ $aarch64 == true ]; then
+    sudo dpkg --add-architecture armhf
+    sudo apt-get -y update
+    sudo apt-get -y upgrade
+    sudo apt-get -f -y install
+  fi
+
+  
+  if [ $i386 == true ]; then
+    TEAMVURL=https://download.teamviewer.com/download/linux/teamviewer-host_i386.deb
+  fi
+  if [ $x86_64 == true ]; then
+    TEAMVURL=https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb
+  fi
+
+  if [ $aarch64 == true ] || [ $raspberry == true ]; then
+    TEAMVURL=https://download.teamviewer.com/download/linux/teamviewer-host_armhf.deb
+  fi
+  sudo wget $TEAMVURL -O /tmp/teamviewer.deb
+  sudo dpkg -i /tmp/teamviewer.deb
+  sudo rm -rf /tmp/teamviewer.deb
+  sudo teamviewer setup
 }
 install_dev_dependents(){
   ######### DANGER ###############################################
@@ -878,7 +905,8 @@ install_firmware(){
   echo
   echo "=========================================================================================================="
   echo "Teamviewer - Instale agora"
-  echo "  https://www.teamviewer.com/pt-br/download/raspberry-pi/"
+  echo "  linker_service install_teamviewer"
+  echo "  OU https://www.teamviewer.com/pt-br/download/raspberry-pi/"
   echo "    Antes de definir a senha, pergunte para um desenvolvedor qual a senha"
   echo
 }
@@ -1169,6 +1197,9 @@ git_clone_linker_firmware)
   ;;
 install_compilador_multi_arquitetura)
   install_compilador_multi_arquitetura
+  ;;
+install_teamviewer)
+  install_teamviewer
   ;;
 install_dev_dependents)
   install_dev_dependents
