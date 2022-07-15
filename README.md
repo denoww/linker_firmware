@@ -1,10 +1,13 @@
-#### install_firmware
+#### configurar minipc
 
 - baixe o linker_service
   - sudo dpkg-reconfigure keyboard-configuration
   - wget -O - www.seucondominio.com.br/linker_service | bash -s update_service
   - linker_service config_wifi
   - linker_service install_teamviewer
+
+#### install_firmware
+
   - linker_service install_firmware -f
 
 
