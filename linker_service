@@ -904,6 +904,7 @@ install_firmware(){
   update_service
   install_dependents
   download_firmware
+  start_prod
   echo
   echo "=========================================================================================================="
   echo "Agora faça"
