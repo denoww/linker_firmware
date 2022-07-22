@@ -449,6 +449,7 @@ install_node(){
 install_docker(){
   if [ $aarch64 == true ]; then
     sudo apt install -y docker.io
+    curl -sSL https://get.docker.com | sh
     sudo apt install -y docker-compose
   else
 
