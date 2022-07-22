@@ -489,7 +489,7 @@ ask_install(){
   echo $install
 }
 install_dev_npm_packages(){
-  sudo npm i nodemon -gi386
+  sudo npm i nodemon -g
   sudo npm i coffee-script -g
   sudo npm i node-inspect -g
 }
