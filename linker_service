@@ -164,6 +164,17 @@ stop_shell_server(){
 restart_shell_server(){
   sudo pm2 restart shell_server
 }
+# parar_fila_e_restart_prod(){
+#   stop_fila_comando
+#   sleep 1
+#   # restart_prod
+# }
+# start_fila_comando(){
+#   curl -X GET 'http://localhost:3002/fila_comando?running=true&authToken=adminTokenLinker'
+# }
+# stop_fila_comando(){
+#   curl -X GET 'http://localhost:3002/fila_comando?running=false&authToken=adminTokenLinker'
+# }
 restart_prod(){
   cd $FIRM_DIR
   stop_linker
@@ -613,6 +624,9 @@ install_cronjobs(){
 
     # reboot as 3 da manha
     "\* 3 \* \* \* $user $SERVICE_PATH reboot_device \> $folder_jobs_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
+    
+    # restart_prod a cada 3hs
+    "\* \*/3 \* \* \* $user $SERVICE_PATH restart_prod \> $folder_jobs_logs/restart_prod \2\>\&\1"
 
   )
 
@@ -1251,6 +1265,9 @@ get_config)
 get_date)
   sudo date
   ;;
+# parar_fila_e_restart_prod)
+#   parar_fila_e_restart_prod
+#   ;;
 help)
   help
   ;;
