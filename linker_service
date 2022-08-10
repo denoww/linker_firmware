@@ -234,6 +234,36 @@ docker_hub_login(){
   # docker buildx create --use --name build --node build --driver-opt network=host
   docker buildx create --use
 }
+gpio_install(){
+  mkdir ~/workspace
+  cd ~/workspace
+  git clone https://github.com/orangepi-xunlong/wiringOP.git
+  cd wiringOP
+  ./build clean
+  ./build 
+}
+gpio_listpins(){
+  gpio readall
+}
+gpio_set_val(){
+  pin=$1
+  val=$2
+  gpio mode $pin out
+  gpio write $pin $val
+}
+gpio_set_relay(){
+  pin=$1
+  val=$2
+  gpio mode $pin out
+  gpio write $pin $val
+  sleep .5
+  oldVal=$((($val+1)%2))
+  gpio write $pin $oldVal
+}
+gpio_get_val(){
+  pin=$1
+  gpio $pin
+}
 build_and_push_docker_images(){
   _ensure_dev_repo_updated
 
@@ -1028,7 +1058,15 @@ help(){
   echo "  linker_service install_teamviewer"
   echo "  linker_service config_wifi"
   echo
-
+  
+  echo "GPIO"
+  echo "  linker_service gpio_listpins"
+  echo "  linker_service gpio_install"
+  echo "  linker_service gpio_set_relay NUMERO_PINO 0ou1"
+  echo "  linker_service gpio_set_val NUMERO_PINO 0ou1"
+  echo "  linker_service gpio_get NUMERO_PINO"
+  echo
+	
   echo "Start Servers Production Docker"
   echo "  linker_service start_prod"
   echo "  linker_service restart_prod"
@@ -1249,6 +1287,24 @@ install_dependents)
   ;;
 reboot_device)
   reboot_device
+  ;;
+gpio_install)
+  gpio_install
+  ;;
+gpio_set_val)
+  gpio_set_val $2 $3
+  ;;
+gpio_set_relay)
+  gpio_set_relay $2 $3
+  ;;
+gpio_touch)
+  gpio_touch $2 $3
+  ;;
+gpio_get)
+  gpio_get $2
+  ;;
+gpio_listpins)
+  gpio_listpins
   ;;
 shutdown_device)
   shutdown_device
