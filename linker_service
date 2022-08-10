@@ -250,6 +250,7 @@ gpio_set_val(){
   val=$2
   gpio mode $pin out
   gpio write $pin $val
+  gpio mode $pin in
 }
 gpio_set_relay(){
   pin=$1
@@ -259,6 +260,7 @@ gpio_set_relay(){
   sleep .5
   oldVal=$((($val+1)%2))
   gpio write $pin $oldVal
+  gpio mode $pin out
 }
 gpio_get_val(){
   pin=$1
