@@ -266,9 +266,16 @@ gpio_get_val(){
   pin=$1
   gpio $pin
 }
+
+docker_limpar_volumes_antigos(){
+  sudo docker container prune -f
+  sudo docker volume prune -f
+}
 build_and_push_docker_images(){
   _ensure_dev_repo_updated
-
+  
+  docker_limpar_volumes_antigos
+  
   # build e push em amd64 e arm
   # sudo docker buildx build --platform linux/amd64,linux/arm $(dev_dir) --push --tag denoww/linker:latest
 
