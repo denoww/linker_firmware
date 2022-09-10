@@ -14,6 +14,17 @@
 - ou instalar perguntando itens a instalar
   - linker_service install_firmware
 
+#### clone emmc para cartão micro sd
+
+```
+$ df -h
+vai listar algo assim
+/dev/mmcblk2p1  7.0G  6.6G   68M 100% /
+/dev/zram1       47M  3.5M   40M   8% /var/log
+Então coloque no if a origem e no of o destino (coloque sem "p1" no final)
+$ sudo dd bs=1024 if=/dev/mmcblk2 of=/dev/mmcblk0
+```
+
 #### update_firmware
 
 - linker_service update_firmware
