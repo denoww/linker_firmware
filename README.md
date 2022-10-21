@@ -22,6 +22,8 @@ $ sudo nand-sata-install
 
 marque boot from eMMC - system on eMMC
 
+confirme e depois marque ext4
+
 #### clone emmc para cartão micro sd
 
 ```
