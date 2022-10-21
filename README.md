@@ -16,6 +16,10 @@
 - ou instalar perguntando itens a instalar
   - linker_service install_firmware
 
+#### copy sd to emmc
+
+$ nand-sata-install
+
 #### clone emmc para cartão micro sd
 
 ```
