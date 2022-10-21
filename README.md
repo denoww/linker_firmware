@@ -18,7 +18,9 @@
 
 #### copy sd to emmc
 
-$ nand-sata-install
+$ sudo nand-sata-install
+
+marque boot from eMMC - system on eMMC
 
 #### clone emmc para cartão micro sd
 
