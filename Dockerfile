@@ -15,7 +15,7 @@ RUN npm install --global coffee-script
 
 # RUN echo "deb http://ftp.debian.org/debian jessie main" > /etc/apt/sources.list
 RUN apt-get upgrade
-# RUN apt-get update
+RUN apt-get update
 RUN apt-get install -y nmap
   # docker.io |
   # curl
