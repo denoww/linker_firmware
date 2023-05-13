@@ -1,4 +1,4 @@
-#### caso for cria imagem para microsd -> de preferencia para ubuntu bionic por ser mais leve
+#### caso for cria imagem para microsd -> de preferencia para ubuntu focal desktop ou bionic desktop por ser mais leve
 
 #### configurar minipc
 
