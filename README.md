@@ -6,6 +6,10 @@
   - sudo passwd orangepi
   - sudo passwd root
   - sudo dpkg-reconfigure keyboard-configuration
+  - sudo reboot
+  - sudo apt-get update
+  - sudo apt-get upgrade
+  - sudo reboot
   - baixe o linker_service
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
   - ou
