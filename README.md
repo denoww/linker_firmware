@@ -37,15 +37,18 @@ confirme e depois marque ext4
 #### clone emmc para cartão micro sd
 
 ```
+Tenha um sd recém formatado ext4 com software gparted do ubuntu
+$ lsblk
+ou
 $ df -h
 vai listar algo assim
 /dev/mmcblk2p1  7.0G  6.6G   68M 100% /
 /dev/zram1       47M  3.5M   40M   8% /var/log
 Então coloque no if a origem e no of o destino (coloque sem "p1" no final)
-$ sudo dd bs=1024 if=/dev/mmcblk2 of=/dev/mmcblk0
+$ sudo dd bs=1024 if=/dev/mmcblk0 of=/dev/mmcblk1
 
-O destino você descobre com o comando lsblk
-Use um sd recém formatado ext4 com software gparted do ubuntu
+
+
 ```
 
 #### update_firmware
