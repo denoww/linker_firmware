@@ -43,6 +43,9 @@ vai listar algo assim
 /dev/zram1       47M  3.5M   40M   8% /var/log
 Então coloque no if a origem e no of o destino (coloque sem "p1" no final)
 $ sudo dd bs=1024 if=/dev/mmcblk2 of=/dev/mmcblk0
+
+O destino você descobre com o comando lsblk
+Use um sd recém formatado ext4 com software gparted do ubuntu
 ```
 
 #### update_firmware
