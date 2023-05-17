@@ -653,7 +653,7 @@ install_cronjobs(){
     "@reboot $user sleep 2 \&\& $SERVICE_PATH start_prod \> $folder_jobs_logs/start_prod \2\>\&\1" # ao iniciar device ligar servidor
 
     # update_service 10 minutos após reboot
-    "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_jobs_logs/update_service \2\>\&\1"
+    # "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s update_service\' \> $folder_jobs_logs/update_service \2\>\&\1"
 
     # update_firmware 10 minutos após reboot
     "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s update_firmware\' \> $folder_jobs_logs/update_firmware \2\>\&\1"
