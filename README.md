@@ -1,3 +1,7 @@
+#### consertar postgres
+
+sudo service postgresql start
+
 #### caso for cria imagem para microsd -> de preferencia para ubuntu focal desktop ou bionic desktop por ser mais leve
 
 #### configurar minipc
