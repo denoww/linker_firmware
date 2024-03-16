@@ -1,4 +1,8 @@
-#### caso for cria imagem para microsd -> de preferencia para ubuntu bionic por ser mais leve
+#### consertar postgres
+
+sudo service postgresql start
+
+#### caso for cria imagem para microsd -> de preferencia para ubuntu focal desktop ou bionic desktop por ser mais leve
 
 #### configurar minipc
 
@@ -6,6 +10,11 @@
   - sudo passwd orangepi
   - sudo passwd root
   - sudo dpkg-reconfigure keyboard-configuration
+  - sudo reboot
+  - sudo apt-get update
+  - sudo apt-get upgrade
+  - sudo reboot
+  - sudo apt install chromium-browser
   - baixe o linker_service
   - wget -O - https://raw.githubusercontent.com/denoww/linker_firmware/master/linker_service | bash -s update_service
   - ou
@@ -32,12 +41,18 @@ confirme e depois marque ext4
 #### clone emmc para cartão micro sd
 
 ```
+Tenha um sd recém formatado ext4 com software gparted do ubuntu
+$ lsblk
+ou
 $ df -h
 vai listar algo assim
 /dev/mmcblk2p1  7.0G  6.6G   68M 100% /
 /dev/zram1       47M  3.5M   40M   8% /var/log
 Então coloque no if a origem e no of o destino (coloque sem "p1" no final)
-$ sudo dd bs=1024 if=/dev/mmcblk2 of=/dev/mmcblk0
+$ sudo dd bs=1024 if=/dev/mmcblk0 of=/dev/mmcblk1
+
+
+
 ```
 
 #### update_firmware
