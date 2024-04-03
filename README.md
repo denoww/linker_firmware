@@ -1,6 +1,10 @@
 #### consertar postgres
 
-sudo service postgresql start
+* sudo service postgresql start
+* systemctl restart postgresql.service; systemctl status postgresql@11-main.service
+* ou
+* linker_service reinstall_postgres -force
+
 
 #### caso for cria imagem para microsd -> de preferencia para ubuntu focal desktop ou bionic desktop por ser mais leve
 
