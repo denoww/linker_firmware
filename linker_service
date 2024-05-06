@@ -411,6 +411,7 @@ reinstall_postgres(){
 }
 install_postgres(){
   check_missing_database_config
+  sudo update
   sudo apt install postgresql libpq-dev postgresql-client postgresql-client-common -y
   config_postgres
 }
