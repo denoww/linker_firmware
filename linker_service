@@ -1117,6 +1117,7 @@ help(){
   echo
   echo "  linker_service reinstall_postgres"
   echo "  linker_service reinstall_postgres -force"
+  echo "  linker_service config_postgres"
   echo "  linker_service install_shell_server"
   echo "  linker_service install_compilador_multi_arquitetura"
   echo "  linker_service db_console"
@@ -1282,6 +1283,9 @@ install_teamviewer)
   ;;
 install_dev_dependents)
   install_dev_dependents
+  ;;
+config_postgres)
+  config_postgres
   ;;
 reinstall_postgres)
   reinstall_postgres
