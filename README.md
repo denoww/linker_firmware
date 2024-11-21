@@ -1,3 +1,7 @@
+#### limpar espaço
+
+* sudo apt-get autoclean; sudo apt-get clean; 
+
 #### consertar postgres
 
 * sudo service postgresql start
