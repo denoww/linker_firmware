@@ -1,6 +1,10 @@
 #### limpar espaço
 
 * sudo apt-get autoclean; sudo apt-get clean; 
+* sudo rm -rf /var/tmp/*
+* sudo rm -rf /tmp/*
+* rm -rf ~/.cache/*
+
 
 #### consertar postgres
 
