@@ -662,8 +662,8 @@ install_cronjobs(){
     # install_jobs 10 minutos após reboot
     # "@reboot $user sleep 600 \&\& bash -c \'$web_linker_service \| bash -s install_jobs\' \> $folder_jobs_logs/install_jobs \2\>\&\1"
 
-    # reboot as 3 da manha
-    "\* 3 \* \* \* $user $SERVICE_PATH reboot_device \> $folder_jobs_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
+    # reboot as 3 da manha (uma vez: "0 3", não "* 3", que reinicia a cada minuto das 03:00 às 03:59)
+    "0 3 \* \* \* $user $SERVICE_PATH reboot_device \> $folder_jobs_logs/reboot_device \2\>\&\1" # de madrugada reboot_device
     
     # restart_prod a cada 3hs
     # "\* \*/3 \* \* \* $user $SERVICE_PATH restart_prod \> $folder_jobs_logs/restart_prod \2\>\&\1"
